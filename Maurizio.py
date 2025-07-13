@@ -332,11 +332,11 @@ class CabinaMTBT:
         }.get(n_cavi_raggruppati_mt, 0.70)
         k_raggr_bt = {
             1: 1.0,
-            2: 0.80,
-            3: 0.70,
-            4: 0.65,
-            6: 0.54,
-            9: 0.50
+            2: 0.85,
+            3: 0.75,
+            4: 0.70,
+            6: 0.60,
+            9: 0.55
         }.get(n_cavi_raggruppati_bt, 0.70)
 
         # 3. Tipo di posa
