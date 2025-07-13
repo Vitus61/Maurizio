@@ -319,7 +319,7 @@ class CabinaMTBT:
             40: 0.91,
             45: 0.85,
             50: 0.78
-        }.get(temp_ambiente, 0.87)
+        }.get(temp_ambiente, 0.90)
 
         # 2. Raggruppamento cavi (CEI 20-13)
         k_raggr = {
@@ -337,7 +337,7 @@ class CabinaMTBT:
             4: 0.65,
             6: 0.54,
             9: 0.50
-        }.get(n_cavi_raggruppati_bt, 0.65)
+        }.get(n_cavi_raggruppati_bt, 0.70)
 
         # 3. Tipo di posa
         k_posa = {
@@ -345,7 +345,7 @@ class CabinaMTBT:
             "cavidotto": 0.90,
             "interrato": 0.95,
             "passerella": 0.98
-        }.get(tipo_posa, 0.85)
+        }.get(tipo_posa, 0.90)
 
         # SELEZIONE CAVO MT con verifiche
         I_mt_progetto = I_mt * 1.3  # Fattore sicurezza
