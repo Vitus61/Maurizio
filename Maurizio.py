@@ -427,14 +427,25 @@ class CabinaMTBT:
                 "verifica_caduta": "❌ NO"
             }
         if not cavo_bt_selezionato:
+        # Calcola con fattori corretti invece di usare valori fissi
+            I_ammissibile_630 = 735 * k_temp * k_raggr_bt * k_posa  # ← CALCOLO REALE
+            R_tot = 0.036 * (lunghezza_bt / 1000)
+            X_tot = 0.035 * (lunghezza_bt / 1000)
+            cos_phi = 0.85
+            sin_phi = math.sqrt(1 - cos_phi**2)
+            dV_perc = (math.sqrt(3) * I_bt * (R_tot * cos_phi + X_tot * sin_phi) * 100) / self.V_bt
+            perdite_kw = 3 * (I_bt**2) * R_tot / 1000
+    
             cavo_bt_selezionato = {
                 "sezione": 630,
-                "portata_corretta": 400,
-                "caduta_tensione_perc": 6.0,
-                "perdite_kw": 2.0,
-                "verifica_portata": "❌ NO",
-                "verifica_caduta": "❌ NO"
-            }
+                "portata_corretta": I_ammissibile_630,  # ← CALCOLO DINAMICO
+                "caduta_tensione_perc": dV_perc,
+                "perdite_kw": perdite_kw,
+                "R_ohm_km": 0.036,
+                "X_ohm_km": 0.035,
+                "verifica_portata": "✅ OK" if I_ammissibile_630 >= I_bt_progetto else "⚠️ LIMITE",
+                "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "⚠️ LIMITE"
+        }
 
         return {
             # Compatibilità con il tuo codice esistente
