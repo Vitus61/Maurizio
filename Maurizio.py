@@ -383,7 +383,7 @@ class CabinaMTBT:
                     break
 
         # SELEZIONE CAVO BT con verifiche
-        I_bt_progetto = I_bt * 1.25  # Fattore sicurezza
+        I_bt_progetto = I_bt * 1.15  # Fattore sicurezza
         cavo_bt_selezionato = None
 
         for sezione, dati in cavi_bt_pro.items():
