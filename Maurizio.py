@@ -1472,26 +1472,32 @@ class CabinaMTBT:
         # Dati rete 20kV
         Un = self.V_mt  # 20kV
         Um = self.Um_mt  # 24kV
-
         # Tensione continua scaricatori (87% di Um)
         Uc = Um * 0.87 / 1000  # kV
-
         # Livello protezione (coordinato con BIL apparecchiature)
         Up_apparecchiature = 125  # kV BIL
         Up_scaricatori = Up_apparecchiature * 0.8  # kV (coordinamento)
-
         # Corrente nominale scarica
         In_scarica = 10  # kA (classe 2 per distribuzione)
-
         # Energia specifica (per reti 20kV)
         W_energia = 4.5  # kJ/kVUc
-
+        # Prodotto commerciale
+        if Un == 15000:
+            prodotto_codice = "DEHN 990004"
+            classe = "DEHNmid 12 10 1 L (per reti 15kV)"
+        elif Un == 20000:
+            prodotto_codice = "DEHN 990005"
+            classe = "DEHNmid 15 10 1 L (per reti 20kV)"
+        else:
+            prodotto_codice = "N/A"
+            classe = "Classe 2"
         return {
             "Uc": round(Uc, 1),
             "Up": round(Up_scaricatori, 0),
             "In_scarica": In_scarica,
-            "classe": "Classe 2",
+            "classe": classe,
             "energia": W_energia,
+            "prodotto": prodotto_codice,
             "specifica": f"{Uc:.1f}kV - {In_scarica}kA - Classe 2"
         }
 
