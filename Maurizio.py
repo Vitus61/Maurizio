@@ -393,9 +393,9 @@ class CabinaMTBT:
         if 'armoniche_result' in locals() and armoniche_result:
             THD_corrente = armoniche_result.get('THD_corrente_perc', 0)
         if THD_corrente > 15:
-            k_armoniche = 0.85  # Derating per armoniche
+            k_armoniche = 0.93  # Derating per armoniche
         elif THD_corrente > 10:
-            k_armoniche = 0.92
+            k_armoniche = 0.95
         else:
             k_armoniche = 1.0
     else:
