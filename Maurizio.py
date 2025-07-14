@@ -2044,7 +2044,7 @@ lunghezza_bt = st.sidebar.number_input("Lunghezza Cavo BT (m)",
 temp_ambiente = st.sidebar.slider("Temperatura Ambiente (°C)",
                                   min_value=30,
                                   max_value=50,
-                                  value=40,
+                                  value=30,
                                   step=5)
 
 tipo_posa = st.sidebar.selectbox(
@@ -2055,12 +2055,12 @@ tipo_posa = st.sidebar.selectbox(
 
 n_cavi_mt = st.sidebar.selectbox("N° Cavi MT Raggruppati",
                                  options=[1, 2, 3, 4, 6],
-                                 index=2,
+                                 index=0,
                                  help="Numero cavi MT nello stesso percorso")
 
 n_cavi_bt = st.sidebar.selectbox("N° Cavi BT Raggruppati",
                                  options=[1, 2, 3, 4, 6, 9],
-                                 index=3,
+                                 index=0,
                                  help="Numero cavi BT nello stesso percorso")
 
 # NUOVA SEZIONE: Parametri Analisi Economica
