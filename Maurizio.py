@@ -342,10 +342,10 @@ class CabinaMTBT:
         # 3. Tipo di posa
         k_posa = {
             "aria": 1.0,
-            "cavidotto": 0.90,
-            "interrato": 0.95,
-            "passerella": 0.98
-        }.get(tipo_posa, 0.90)
+            "cavidotto": 0.85,
+            "interrato": 0.80,
+            "passerella": 0.95
+        }.get(tipo_posa, 0.80)
 
         # SELEZIONE CAVO MT con verifiche
         I_mt_progetto = I_mt * 1.3  # Fattore sicurezza
