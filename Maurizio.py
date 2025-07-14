@@ -181,10 +181,10 @@ class CabinaMTBT:
                                            I_bt,
                                            lunghezza_mt=50,
                                            lunghezza_bt=30,
-                                           temp_ambiente=40,
-                                           tipo_posa="cavidotto",
-                                           n_cavi_raggruppati_mt=3,
-                                           n_cavi_raggruppati_bt=4):
+                                           temp_ambiente=35,
+                                           tipo_posa="passerella",
+                                           n_cavi_raggruppati_mt=1,
+                                           n_cavi_raggruppati_bt=1):
         """
             Calcolo cavi con fattori di correzione professionali secondo CEI
             """
