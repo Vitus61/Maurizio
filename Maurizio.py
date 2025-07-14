@@ -1006,18 +1006,18 @@ class CabinaMTBT:
             return 0.02 if corrente >= I_rele_50_mt else float(
                 'inf')  # 20ms se interviene
 
-        # Interruttore BT (magnetotermico)
-        def tempo_interruttore_bt(corrente):
+        def tempo_interruttore_bt(corrente, I_int_bt, K_mag=10, K_term=1.45):
             """Tempo intervento interruttore BT - curva magnetotermica"""
-            # Soglia magnetica (tipicamente 10×In per magnetotermici)
-            I_mag_bt = I_int_bt * 10
+            # Soglie parametriche (invece di valori fissi)
+            I_mag_bt = I_int_bt * K_mag      # Era: I_int_bt * 10
+            I_term_bt = I_int_bt * K_term    # Era: I_int_bt * 1.45
 
             if corrente >= I_mag_bt:
-                return 0.01  # 10ms intervento magnetico
-            elif corrente >= I_int_bt * 1.45:  # Soglia termica (1.45×In tipica)
+               return 0.01  # 10ms intervento magnetico
+            elif corrente >= I_term_bt:
                 # Curva termica (approssimata)
                 rapporto = corrente / I_int_bt
-                return 3600 / ((rapporto**1.8) - 1)  # Formula semplificata
+                return 3600 / (rapporto**2)  # Formula semplificata
             else:
                 return float('inf')  # Non interviene
 
