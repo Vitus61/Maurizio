@@ -1844,7 +1844,16 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story = []
 
     # Titolo
-    story.append(Paragraph("REPORT DIMENSIONAMENTO CABINA MT/BT", title_style))
+    story.append(Paragraph("REPORT DIMENSIONAMENTO CABINA MT/BT - v1.1", title_style))
+    # ✅ AGGIUNGI IL NOME DELL'AZIENDA QUI
+    story.append(Paragraph("MAURIZIO SRL - Impianti Elettrici", 
+                          ParagraphStyle('CompanyName',
+                                    parent=styles['Normal'],
+                                    fontSize=14,
+                                    spaceAfter=15,
+                                    alignment=1,  # Center
+                                    textColor=colors.darkblue,
+                                    fontName='Helvetica-Bold')))                    
     story.append(
         Paragraph(f"Cabina 20kV/400V - {potenza_trasf} kVA",
                   styles['Heading3']))
