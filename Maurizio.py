@@ -1042,7 +1042,7 @@ class CabinaMTBT:
             t_bt = tempo_interruttore_bt(I_test)
 
             # Tempi lato MT (corrente riportata al primario)
-            I_test_mt = I_test / (self.V_bt / self.V_mt)  # Riporta al MT
+            I_test_mt = I_test * (self.V_bt / self.V_mt)  # Riporta al MT
             t_mt_51 = tempo_rele_51_mt(I_test_mt)
             t_mt_50 = tempo_rele_50_mt(I_test_mt)
             t_mt = min(t_mt_51, t_mt_50)  # Il più veloce interviene
