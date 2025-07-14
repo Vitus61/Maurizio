@@ -305,7 +305,7 @@ class CabinaMTBT:
             630: {
                 "R": 0.036,
                 "X": 0.035,
-                "portata_base": 1000
+                "portata_base": 1500
             }
         }
 
