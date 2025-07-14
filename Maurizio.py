@@ -866,13 +866,13 @@ class CabinaMTBT:
 
         # EFFETTI DELLE ARMONICHE
         # Perdite aggiuntive nel trasformatore (formula empirica)
-        perdite_aggiuntive_perc = (THD_corrente_perc / 100)**2 * 15  # %
+        perdite_aggiuntive_perc = (THD_corrente_perc / 100)**2 * 8  # %
 
         # Sovradimensionamento conduttore neutro
         I3_perc = spettro.get(3, 0) * 100  # 3ª armonica in %
         if I3_perc > 33:
             sovradim_neutro = 2.0  # Raddoppio sezione
-        elif I3_perc > 15:
+        elif I3_perc > 25:
             sovradim_neutro = 1.5  # +50%
         else:
             sovradim_neutro = 1.0  # Normale
@@ -880,11 +880,11 @@ class CabinaMTBT:
         # RACCOMANDAZIONI
         raccomandazioni = []
 
-        if THD_corrente_perc > 20:
+        if THD_corrente_perc > 30:
             raccomandazioni.append(
                 "Installare filtri armoniche attivi o passivi")
             raccomandazioni.append(
-                "Verificare derating del trasformatore (-10% per THD>20%)")
+                "Verificare derating del trasformatore (-10% per THD>30%)")
 
         if I3_perc > 15:
             raccomandazioni.append(
