@@ -1039,7 +1039,7 @@ class CabinaMTBT:
             # Calcola tempi di intervento per ogni protezione
 
             # Tempi lato BT
-            t_bt = tempo_interruttore_bt(I_test, , I_int_bt)
+            t_bt = tempo_interruttore_bt(I_test, I_int_bt)
 
             # Tempi lato MT (corrente riportata al primario)
             I_test_mt = I_test * (self.V_bt / self.V_mt)  # Riporta al MT
