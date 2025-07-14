@@ -2844,6 +2844,7 @@ if st.session_state.calcoli_effettuati:
         st.write(f"**TA Protezione:** {prot_mt['ta_protezione']}")
         st.write(f"**TV Misure:** {prot_mt['tv_misure']}")
         st.write(f"**Scaricatori:** {prot_mt['scaricatori']}")
+        st.write(f"**Sezionatore Terra:** {prot_mt['sezionatore_terra']}")
 
         # Tarature relè
         st.markdown("**⚙️ Tarature Relè:**")
