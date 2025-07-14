@@ -1017,7 +1017,7 @@ class CabinaMTBT:
             elif corrente >= I_int_bt * 1.45:  # Soglia termica (1.45×In tipica)
                 # Curva termica (approssimata)
                 rapporto = corrente / I_int_bt
-                return 3600 / (rapporto**2)  # Formula semplificata
+                return 3600 / ((rapporto**1.8) - 1)  # Formula semplificata
             else:
                 return float('inf')  # Non interviene
 
