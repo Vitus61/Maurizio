@@ -394,12 +394,11 @@ class CabinaMTBT:
             THD_corrente = armoniche_result.get('THD_corrente_perc', 0)
         if THD_corrente > 15:
             k_armoniche = 0.93  # Derating per armoniche
-        elif THD_corrente > 10:
-            k_armoniche = 0.95
+        elif THD_corrente > 8:
+            k_armoniche = 0.97
         else:
             k_armoniche = 1.0
-    else:
-        k_armoniche = 1.0
+  
 
 # 2. Applicare fattore armoniche
 I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
