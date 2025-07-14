@@ -149,7 +149,7 @@ class CabinaMTBT:
                 "funzione": "Messa a terra cavo DG-trasformatore",
                 "normativa": "CEI 0-16 - Obbligatorio",
                 "comando": "Manuale con interblocchi"
-            } 
+            }, 
             "tarature": tarature
         }
 
