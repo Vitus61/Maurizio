@@ -317,7 +317,7 @@ class CabinaMTBT:
             40: 0.91,
             45: 0.85,
             50: 0.78
-        }.get(temp_ambiente, 0.90)
+        }.get(temp_ambiente, 0.95)
 
         # 2. Raggruppamento cavi (CEI 20-13)
         k_raggr = {
@@ -327,7 +327,7 @@ class CabinaMTBT:
             4: 0.70,
             6: 0.60,
             9: 0.55
-        }.get(n_cavi_raggruppati_mt, 0.70)
+        }.get(n_cavi_raggruppati_mt, 0.8)
         k_raggr_bt = {
             1: 1.0,
             2: 0.85,
@@ -335,7 +335,7 @@ class CabinaMTBT:
             4: 0.70,
             6: 0.60,
             9: 0.55
-        }.get(n_cavi_raggruppati_bt, 0.70)
+        }.get(n_cavi_raggruppati_bt, 0.75)
 
         # 3. Tipo di posa
         k_posa = {
