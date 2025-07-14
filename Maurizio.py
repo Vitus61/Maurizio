@@ -994,7 +994,7 @@ class CabinaMTBT:
                 return float('inf')  # Non interviene
 
             # Curva inversa standard: t = TMS * [0.14 / ((I/Is)^0.02 - 1)]
-            TMS = 0.5  # Time Multiplier Setting tipico
+            TMS = 0.1  # Time Multiplier Setting tipico
             rapporto = corrente / I_rele_51_mt
             if rapporto <= 1:
                 return float('inf')
