@@ -402,8 +402,7 @@ class CabinaMTBT:
 
 # 2. Applicare fattore armoniche
 I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
-
-    if I_ammissibile >= I_bt_progetto:
+if I_ammissibile >= I_bt_progetto:
         # Verifica caduta tensione
         R_tot = dati["R"] * (lunghezza_bt / 1000)  # Ω
         X_tot = dati["X"] * (lunghezza_bt / 1000)  # Ω
