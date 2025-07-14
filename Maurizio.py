@@ -400,8 +400,8 @@ class CabinaMTBT:
             k_armoniche = 1.0
   
 
-        # 2. Applicare fattore armoniche
-        I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
+# 2. Applicare fattore armoniche
+I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
 
         if I_ammissibile >= I_bt_progetto:
             # Verifica caduta tensione
@@ -426,8 +426,8 @@ class CabinaMTBT:
                     "X_ohm_km": dati["X"],
                     "verifica_portata": "✅ OK",
                     "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "❌ NO"
-               }
-               break
+                }
+                break
 
         # Fallback se non trova cavi adatti
         if not cavo_mt_selezionato:
