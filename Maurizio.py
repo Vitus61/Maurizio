@@ -1832,7 +1832,14 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
                                    fontSize=12,
                                    spaceAfter=12,
                                    textColor=colors.darkblue)
-
+    # ======= AGGIUNGI QUESTE RIGHE PER COMPATIBILITÀ =======
+    protezioni_mt = prot_mt        # ✅ Alias per compatibilità
+    protezioni_bt = prot_bt        # ✅ Alias per compatibilità
+    risultato_cavi = cavi          # ✅ Alias per compatibilità
+    n_cavi_raggruppati_mt = 1      # ✅ Valore fisso 
+    n_cavi_raggruppati_bt = 1      # ✅ Valore fisso
+    # ======= FINE ALIAS =======
+                        
     # Contenuto del PDF
     story = []
 
