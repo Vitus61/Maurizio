@@ -174,8 +174,6 @@ class CabinaMTBT:
             "icc_bt": Icc_bt / 1000
         }
 
-    # AGGIUNGI QUESTO METODO ALLA TUA CLASSE CabinaMTBT
-
     def calcola_sezioni_cavi_professionale(self,
                                            I_mt,
                                            I_bt,
@@ -186,8 +184,8 @@ class CabinaMTBT:
                                            n_cavi_raggruppati_mt=1,
                                            n_cavi_raggruppati_bt=1):
         """
-            Calcolo cavi con fattori di correzione professionali secondo CEI
-            """
+        Calcolo cavi con fattori di correzione professionali secondo CEI
+        """
 
         # Database cavi con R, X reali (Ω/km) - CEI 11-17 e CEI 20-13
         cavi_mt_pro = {
@@ -382,52 +380,51 @@ class CabinaMTBT:
                     }
                     break
 
-        # SELEZIONE CAVO BT con verifiche
-        # SELEZIONE CAVO BT con verifiche
+        # SELEZIONE CAVO BT con verifiche e fattori armoniche
         I_bt_progetto = I_bt * 1.15  # Fattore sicurezza
-        cavo_bt_selezionato = None
-        for sezione, dati in cavi_bt_pro.items():
-            # Portata corretta
-            I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa
-            # 1. Calcolare fattore armoniche
+        
+        # Calcolo fattore armoniche (da implementare con analisi armoniche)
+        k_armoniche = 1.0
         if 'armoniche_result' in locals() and armoniche_result:
             THD_corrente = armoniche_result.get('THD_corrente_perc', 0)
-        if THD_corrente > 15:
-            k_armoniche = 0.93  # Derating per armoniche
-        elif THD_corrente > 8:
-            k_armoniche = 0.97
-        else:
-            k_armoniche = 1.0
-  
+            if THD_corrente > 25:
+                k_armoniche = 0.85  # Data center
+            elif THD_corrente > 15:
+                k_armoniche = 0.93  # Non lineari
+            elif THD_corrente > 8:
+                k_armoniche = 0.97  # Misti
+            # else k_armoniche = 1.0 (lineari)
 
-# 2. Applicare fattore armoniche
-I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
-    if I_ammissibile >= I_bt_progetto:
-        # Verifica caduta tensione
-        R_tot = dati["R"] * (lunghezza_bt / 1000)  # Ω
-        X_tot = dati["X"] * (lunghezza_bt / 1000)  # Ω
-        cos_phi = 0.85
-        sin_phi = math.sqrt(1 - cos_phi**2)
+        cavo_bt_selezionato = None
+        for sezione, dati in cavi_bt_pro.items():
+            # Portata corretta con fattore armoniche
+            I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
+            
+            if I_ammissibile >= I_bt_progetto:
+                # Verifica caduta tensione
+                R_tot = dati["R"] * (lunghezza_bt / 1000)  # Ω
+                X_tot = dati["X"] * (lunghezza_bt / 1000)  # Ω
+                cos_phi = 0.85
+                sin_phi = math.sqrt(1 - cos_phi**2)
 
-        dV_perc = (math.sqrt(3) * I_bt *
+                dV_perc = (math.sqrt(3) * I_bt *
                            (R_tot * cos_phi + X_tot * sin_phi) *
                            100) / self.V_bt
 
-        if dV_perc <= 4.0:  # Limite CEI per BT
-            perdite_kw = 3 * (I_bt**2) * R_tot / 1000
+                if dV_perc <= 4.0:  # Limite CEI per BT
+                    perdite_kw = 3 * (I_bt**2) * R_tot / 1000
 
-            cavo_bt_selezionato = 
-          {
-                "sezione": sezione,
-                "portata_corretta": I_ammissibile,
-                "caduta_tensione_perc": dV_perc,
-                "perdite_kw": perdite_kw,
-                "R_ohm_km": dati["R"],
-                "X_ohm_km": dati["X"],
-                "verifica_portata": "✅ OK",
-                "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "❌ NO"
-          }
-          break
+                    cavo_bt_selezionato = {
+                        "sezione": sezione,
+                        "portata_corretta": I_ammissibile,
+                        "caduta_tensione_perc": dV_perc,
+                        "perdite_kw": perdite_kw,
+                        "R_ohm_km": dati["R"],
+                        "X_ohm_km": dati["X"],
+                        "verifica_portata": "✅ OK",
+                        "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "❌ NO"
+                    }
+                    break
 
         # Fallback se non trova cavi adatti
         if not cavo_mt_selezionato:
@@ -439,60 +436,51 @@ I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armonich
                 "verifica_portata": "❌ NO",
                 "verifica_caduta": "❌ NO"
             }
+            
         if not cavo_bt_selezionato:
-        # Calcola con fattori corretti invece di usare valori fissi
-            I_ammissibile_630 = 735 * k_temp * k_raggr_bt * k_posa  # ← CALCOLO REALE
+            # Calcola con fattori corretti invece di usare valori fissi
+            I_ammissibile_630 = 735 * k_temp * k_raggr_bt * k_posa * k_armoniche
             R_tot = 0.036 * (lunghezza_bt / 1000)
             X_tot = 0.035 * (lunghezza_bt / 1000)
             cos_phi = 0.85
             sin_phi = math.sqrt(1 - cos_phi**2)
             dV_perc = (math.sqrt(3) * I_bt * (R_tot * cos_phi + X_tot * sin_phi) * 100) / self.V_bt
             perdite_kw = 3 * (I_bt**2) * R_tot / 1000
-    
+
             cavo_bt_selezionato = {
                 "sezione": 630,
-                "portata_corretta": I_ammissibile_630,  # ← CALCOLO DINAMICO
+                "portata_corretta": I_ammissibile_630,
                 "caduta_tensione_perc": dV_perc,
                 "perdite_kw": perdite_kw,
                 "R_ohm_km": 0.036,
                 "X_ohm_km": 0.035,
                 "verifica_portata": "✅ OK" if I_ammissibile_630 >= I_bt_progetto else "⚠️ LIMITE",
                 "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "⚠️ LIMITE"
-        }
+            }
 
         return {
             # Compatibilità con il tuo codice esistente
-            "sez_mt":
-            cavo_mt_selezionato["sezione"],
-            "sez_bt":
-            cavo_bt_selezionato["sezione"],
-            "portata_mt":
-            cavo_mt_selezionato["portata_corretta"],
-            "portata_bt":
-            cavo_bt_selezionato["portata_corretta"],
-            "I_mt_richiesta":
-            I_mt_progetto,
-            "I_bt_richiesta":
-            I_bt_progetto,
+            "sez_mt": cavo_mt_selezionato["sezione"],
+            "sez_bt": cavo_bt_selezionato["sezione"],
+            "portata_mt": cavo_mt_selezionato["portata_corretta"],
+            "portata_bt": cavo_bt_selezionato["portata_corretta"],
+            "I_mt_richiesta": I_mt_progetto,
+            "I_bt_richiesta": I_bt_progetto,
 
             # Nuovi dati professionali
-            "mt_dettaglio":
-            cavo_mt_selezionato,
-            "bt_dettaglio":
-            cavo_bt_selezionato,
+            "mt_dettaglio": cavo_mt_selezionato,
+            "bt_dettaglio": cavo_bt_selezionato,
             "fattori_correzione": {
                 "k_temp": k_temp,
                 "k_raggr_mt": k_raggr,
                 "k_raggr_bt": k_raggr_bt,
                 "k_posa": k_posa,
+                "k_armoniche": k_armoniche,
                 "temp_ambiente": temp_ambiente,
                 "tipo_posa": tipo_posa
             },
-            "perdite_totali_cavi_kw":
-            cavo_mt_selezionato["perdite_kw"] +
-            cavo_bt_selezionato["perdite_kw"]
+            "perdite_totali_cavi_kw": cavo_mt_selezionato["perdite_kw"] + cavo_bt_selezionato["perdite_kw"]
         }
-
     # AGGIUNGI QUESTO METODO ALLA TUA CLASSE CabinaMTBT
 
     def calcola_analisi_economica(self,
