@@ -381,7 +381,7 @@ class CabinaMTBT:
                     break
 
         # SELEZIONE CAVO BT con verifiche e fattori armoniche
-        I_bt_progetto = I_bt * 1.15  # Fattore sicurezza
+        I_bt_progetto = I_bt * 1.1  # Fattore sicurezza
         
         # Calcolo fattore armoniche (da implementare con analisi armoniche)
         k_armoniche = 1.0
