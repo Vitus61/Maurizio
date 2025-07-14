@@ -1492,7 +1492,7 @@ class CabinaMTBT:
             "Uc": round(Uc, 1),
             "Up": round(Up_scaricatori, 0),
             "In_scarica": In_scarica,
-            "classe": "Classe 2",
+            "classe": prodotto,
             "energia": W_energia,
             "specifica": f"{Uc:.1f}kV - {In_scarica}kA - {prodotto}"
         }
