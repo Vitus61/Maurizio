@@ -388,7 +388,7 @@ class CabinaMTBT:
         cavo_bt_selezionato = None
         for sezione, dati in cavi_bt_pro.items():
             # Portata corretta
-            //I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa
+            I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa
             # 1. Calcolare fattore armoniche
         if 'armoniche_result' in locals() and armoniche_result:
             THD_corrente = armoniche_result.get('THD_corrente_perc', 0)
