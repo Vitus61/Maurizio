@@ -427,7 +427,7 @@ class CabinaMTBT:
                         "verifica_portata": "✅ OK",
                         "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "❌ NO"
                     }
-                    break
+                  break
 
         # Fallback se non trova cavi adatti
         if not cavo_mt_selezionato:
