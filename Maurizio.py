@@ -1895,7 +1895,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(table)
     story.append(Spacer(1, 20))
 
-    # SEZIONE CORRENTI E CORTOCIRCUITI (aggiungi dopo trasformatore)
+    # SEZIONE CORRENTI E CORTOCIRCUITI (corretta)
     story.append(Paragraph("CORRENTI E CORTOCIRCUITI", heading_style))
     data_correnti = [
         ["Parametro", "Valore", "Unità"],
@@ -1918,14 +1918,14 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(table)
     story.append(Spacer(1, 20))     
 
-     # SEZIONE PROTEZIONI MT
+    # SEZIONE PROTEZIONI MT (corretta)
     story.append(Paragraph("PROTEZIONI LATO MT", heading_style))
-    prot_mt = [
+    data_prot_mt = [  # ✅ Cambiato nome variabile
         ["Componente", "Specifica"],
-        ["Interruttore MT", protezioni_mt['interruttore']],
-        ["TA Protezione", protezioni_mt['ta_protezione']],
-        ["TV Misure", protezioni_mt['tv_misure']],
-        ["Scaricatori", protezioni_mt['scaricatori']]
+        ["Interruttore MT", prot_mt['interruttore']],        # ✅ Usa parametro corretto
+        ["TA Protezione", prot_mt['ta_protezione']], 
+        ["TV Misure", prot_mt['tv_misure']],
+        ["Scaricatori", prot_mt['scaricatori']]
     ]
     
     table = Table(data_prot_mt, colWidths=[4*cm, 8*cm])
@@ -1941,13 +1941,13 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(table)
     story.append(Spacer(1, 15))  
                         
-     # SEZIONE PROTEZIONI BT
+    # SEZIONE PROTEZIONI BT (corretta)
     story.append(Paragraph("PROTEZIONI LATO BT", heading_style))
-    prot_bt = [
+    data_prot_bt = [  # ✅ Cambiato nome variabile
         ["Componente", "Specifica"],
-        ["Interruttore Generale", protezioni_bt['interruttore_generale']],
-        ["Differenziale", protezioni_bt['differenziale']],
-        ["Corrente cortocircuito", f"{protezioni_bt['icc_bt']:.1f} kA"]
+        ["Interruttore Generale", prot_bt['interruttore_generale']],  # ✅ Usa parametro corretto
+        ["Differenziale", prot_bt['differenziale']],
+        ["Corrente cortocircuito", f"{prot_bt['icc_bt']:.1f} kA"]
     ]
     
     table = Table(data_prot_bt, colWidths=[4*cm, 8*cm])
@@ -1963,7 +1963,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(table)
     story.append(Spacer(1, 20))  
 
-    # SEZIONE DIMENSIONAMENTO CAVI
+    # SEZIONE DIMENSIONAMENTO CAVI (corretta)
     story.append(Paragraph("DIMENSIONAMENTO CAVI", heading_style))
     
     # Fattori di correzione
@@ -1972,8 +1972,8 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     data_fattori = [
         ["Parametro", "Valore", "Fattore"],
         ["Temperatura ambiente", f"{fattori['temp_ambiente']}°C", f"k₁ = {fattori['k_temp']}"],
-        ["Raggruppamento MT", f"{n_cavi_raggruppati_mt} circuiti", f"k₂ = {fattori['k_raggr_mt']}"],
-        ["Raggruppamento BT", f"{n_cavi_raggruppati_bt} circuiti", f"k₂ = {fattori['k_raggr_bt']}"],
+        ["Raggruppamento MT", f"1 circuiti", f"k₂ = {fattori['k_raggr_mt']}"],     # ✅ Valore fisso
+        ["Raggruppamento BT", f"1 circuiti", f"k₂ = {fattori['k_raggr_bt']}"],     # ✅ Valore fisso  
         ["Tipo di posa", f"{fattori['tipo_posa']}", f"k₃ = {fattori['k_posa']}"]
     ]
     
@@ -1988,21 +1988,21 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(table)
     story.append(Spacer(1, 15))
 
-    # Dimensionamento Cavi
-    cavi = [
+    # Dimensionamento Cavi (corretta)
+    data_cavi = [  # ✅ Cambiato nome variabile per non sovrascrivere
         ["Tipo", "Sezione", "Portata", "Richiesta", "Caduta Tensione", "Verifiche"],
         ["Cavo MT", 
-         f"{risultato_cavi['sez_mt']} mm²", 
-         f"{risultato_cavi['mt_dettaglio']['portata_corretta']:.0f} A",
-         f"{risultato_cavi['I_mt_richiesta']:.0f} A",
-         f"{risultato_cavi['mt_dettaglio']['caduta_tensione_perc']:.2f}%",
-         f"{risultato_cavi['mt_dettaglio']['verifica_portata']} {risultato_cavi['mt_dettaglio']['verifica_caduta']}"],
+         f"{cavi['sez_mt']} mm²",                                               # ✅ Usa parametro cavi
+         f"{cavi['mt_dettaglio']['portata_corretta']:.0f} A",
+         f"{cavi['I_mt_richiesta']:.0f} A",
+         f"{cavi['mt_dettaglio']['caduta_tensione_perc']:.2f}%",
+         f"{cavi['mt_dettaglio']['verifica_portata']} {cavi['mt_dettaglio']['verifica_caduta']}"],
         ["Cavo BT", 
-         f"{risultato_cavi['sez_bt']} mm²", 
-         f"{risultato_cavi['bt_dettaglio']['portata_corretta']:.0f} A",
-         f"{risultato_cavi['I_bt_richiesta']:.0f} A",
-         f"{risultato_cavi['bt_dettaglio']['caduta_tensione_perc']:.2f}%",
-         f"{risultato_cavi['bt_dettaglio']['verifica_portata']} {risultato_cavi['bt_dettaglio']['verifica_caduta']}"]
+         f"{cavi['sez_bt']} mm²",                                               # ✅ Usa parametro cavi
+         f"{cavi['bt_dettaglio']['portata_corretta']:.0f} A",
+         f"{cavi['I_bt_richiesta']:.0f} A",
+         f"{cavi['bt_dettaglio']['caduta_tensione_perc']:.2f}%",
+         f"{cavi['bt_dettaglio']['verifica_portata']} {cavi['bt_dettaglio']['verifica_caduta']}"]
     ]
     
     table = Table(data_cavi, colWidths=[2*cm, 2*cm, 2*cm, 2*cm, 2*cm, 2*cm])
@@ -2018,21 +2018,21 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(table)
     story.append(Spacer(1, 20))
 
-    # SEZIONE PERDITE E RENDIMENTO
+    # SEZIONE PERDITE E RENDIMENTO (corretta)
     story.append(Paragraph("BILANCIO ENERGETICO", heading_style))
     perdite_totali = (calc.perdite_vuoto[potenza_trasf] + 
                      calc.perdite_carico[potenza_trasf] + 
-                     cavi['perdite_totali_cavi_kw'] * 1000)
+                     cavi['perdite_totali_cavi_kw'] * 1000)                    # ✅ Usa parametro cavi
     
-    rendimento = ((potenza_trasf * 1000 - perdite_totali) / (potenza_trasf * 1000)) * 100
+    rendimento_calc = ((potenza_trasf * 1000 - perdite_totali) / (potenza_trasf * 1000)) * 100
     
     data_energia = [
         ["Parametro", "Valore"],
         ["Perdite trasformatore a vuoto", f"{calc.perdite_vuoto[potenza_trasf]} W"],
         ["Perdite trasformatore a carico", f"{calc.perdite_carico[potenza_trasf]} W"],
-        ["Perdite cavi MT+BT", f"{risultato_cavi['perdite_totali_cavi_kw']:.2f} kW"],
+        ["Perdite cavi MT+BT", f"{cavi['perdite_totali_cavi_kw']:.2f} kW"],    # ✅ Usa parametro cavi
         ["Perdite totali", f"{perdite_totali/1000:.2f} kW"],
-        ["Rendimento stimato", f"{rendimento:.1f}%"]
+        ["Rendimento stimato", f"{rendimento_calc:.1f}%"]                       # ✅ Rinominato per evitare conflitti
     ]
     
     table = Table(data_energia, colWidths=[6*cm, 6*cm])
@@ -2047,7 +2047,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
                     ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
     story.append(table)
     story.append(Spacer(1, 20))
-                        
+                    
     # Impianto di Terra
     story.append(Paragraph("IMPIANTO DI TERRA E SICUREZZA", heading_style))
     data_terra = [
