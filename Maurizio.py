@@ -1920,7 +1920,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
 
      # SEZIONE PROTEZIONI MT
     story.append(Paragraph("PROTEZIONI LATO MT", heading_style))
-    data_prot_mt = [
+    prot_mt = [
         ["Componente", "Specifica"],
         ["Interruttore MT", protezioni_mt['interruttore']],
         ["TA Protezione", protezioni_mt['ta_protezione']],
@@ -1943,7 +1943,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
                         
      # SEZIONE PROTEZIONI BT
     story.append(Paragraph("PROTEZIONI LATO BT", heading_style))
-    data_prot_bt = [
+    prot_bt = [
         ["Componente", "Specifica"],
         ["Interruttore Generale", protezioni_bt['interruttore_generale']],
         ["Differenziale", protezioni_bt['differenziale']],
@@ -1968,7 +1968,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     
     # Fattori di correzione
     story.append(Paragraph("Condizioni di Posa e Fattori Correttivi", styles['Heading4']))
-    fattori = risultato_cavi['fattori_correzione']
+    fattori = cavi['fattori_correzione']
     data_fattori = [
         ["Parametro", "Valore", "Fattore"],
         ["Temperatura ambiente", f"{fattori['temp_ambiente']}°C", f"k₁ = {fattori['k_temp']}"],
@@ -1989,7 +1989,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(Spacer(1, 15))
 
     # Dimensionamento Cavi
-    data_cavi = [
+    cavi = [
         ["Tipo", "Sezione", "Portata", "Richiesta", "Caduta Tensione", "Verifiche"],
         ["Cavo MT", 
          f"{risultato_cavi['sez_mt']} mm²", 
@@ -2022,7 +2022,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(Paragraph("BILANCIO ENERGETICO", heading_style))
     perdite_totali = (calc.perdite_vuoto[potenza_trasf] + 
                      calc.perdite_carico[potenza_trasf] + 
-                     risultato_cavi['perdite_totali_cavi_kw'] * 1000)
+                     cavi['perdite_totali_cavi_kw'] * 1000)
     
     rendimento = ((potenza_trasf * 1000 - perdite_totali) / (potenza_trasf * 1000)) * 100
     
