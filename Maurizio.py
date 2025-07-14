@@ -1895,6 +1895,159 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     story.append(table)
     story.append(Spacer(1, 20))
 
+    # SEZIONE CORRENTI E CORTOCIRCUITI (aggiungi dopo trasformatore)
+    story.append(Paragraph("CORRENTI E CORTOCIRCUITI", heading_style))
+    data_correnti = [
+        ["Parametro", "Valore", "Unità"],
+        ["Corrente nominale MT", f"{I_mt:.1f}", "A"],
+        ["Corrente nominale BT", f"{I_bt:.1f}", "A"], 
+        ["Corrente cortocircuito BT", f"{Icc_bt/1000:.1f}", "kA"],
+        ["Potere interruzione richiesto", f"{25 if Icc_bt < 25000 else 35 if Icc_bt < 35000 else 50}", "kA"]
+    ]
+    
+    table = Table(data_correnti, colWidths=[6*cm, 3*cm, 3*cm])
+    table.setStyle(
+        TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+    story.append(table)
+    story.append(Spacer(1, 20))     
+
+     # SEZIONE PROTEZIONI MT
+    story.append(Paragraph("PROTEZIONI LATO MT", heading_style))
+    data_prot_mt = [
+        ["Componente", "Specifica"],
+        ["Interruttore MT", protezioni_mt['interruttore']],
+        ["TA Protezione", protezioni_mt['ta_protezione']],
+        ["TV Misure", protezioni_mt['tv_misure']],
+        ["Scaricatori", protezioni_mt['scaricatori']]
+    ]
+    
+    table = Table(data_prot_mt, colWidths=[4*cm, 8*cm])
+    table.setStyle(
+        TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+    story.append(table)
+    story.append(Spacer(1, 15))  
+                        
+     # SEZIONE PROTEZIONI BT
+    story.append(Paragraph("PROTEZIONI LATO BT", heading_style))
+    data_prot_bt = [
+        ["Componente", "Specifica"],
+        ["Interruttore Generale", protezioni_bt['interruttore_generale']],
+        ["Differenziale", protezioni_bt['differenziale']],
+        ["Corrente cortocircuito", f"{protezioni_bt['icc_bt']:.1f} kA"]
+    ]
+    
+    table = Table(data_prot_bt, colWidths=[4*cm, 8*cm])
+    table.setStyle(
+        TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+    story.append(table)
+    story.append(Spacer(1, 20))  
+
+    # SEZIONE DIMENSIONAMENTO CAVI
+    story.append(Paragraph("DIMENSIONAMENTO CAVI", heading_style))
+    
+    # Fattori di correzione
+    story.append(Paragraph("Condizioni di Posa e Fattori Correttivi", styles['Heading4']))
+    fattori = risultato_cavi['fattori_correzione']
+    data_fattori = [
+        ["Parametro", "Valore", "Fattore"],
+        ["Temperatura ambiente", f"{fattori['temp_ambiente']}°C", f"k₁ = {fattori['k_temp']}"],
+        ["Raggruppamento MT", f"{n_cavi_raggruppati_mt} circuiti", f"k₂ = {fattori['k_raggr_mt']}"],
+        ["Raggruppamento BT", f"{n_cavi_raggruppati_bt} circuiti", f"k₂ = {fattori['k_raggr_bt']}"],
+        ["Tipo di posa", f"{fattori['tipo_posa']}", f"k₃ = {fattori['k_posa']}"]
+    ]
+    
+    table = Table(data_fattori, colWidths=[4*cm, 4*cm, 4*cm])
+    table.setStyle(
+        TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 9),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)]))
+    story.append(table)
+    story.append(Spacer(1, 15))
+
+    # Dimensionamento Cavi
+    data_cavi = [
+        ["Tipo", "Sezione", "Portata", "Richiesta", "Caduta Tensione", "Verifiche"],
+        ["Cavo MT", 
+         f"{risultato_cavi['sez_mt']} mm²", 
+         f"{risultato_cavi['mt_dettaglio']['portata_corretta']:.0f} A",
+         f"{risultato_cavi['I_mt_richiesta']:.0f} A",
+         f"{risultato_cavi['mt_dettaglio']['caduta_tensione_perc']:.2f}%",
+         f"{risultato_cavi['mt_dettaglio']['verifica_portata']} {risultato_cavi['mt_dettaglio']['verifica_caduta']}"],
+        ["Cavo BT", 
+         f"{risultato_cavi['sez_bt']} mm²", 
+         f"{risultato_cavi['bt_dettaglio']['portata_corretta']:.0f} A",
+         f"{risultato_cavi['I_bt_richiesta']:.0f} A",
+         f"{risultato_cavi['bt_dettaglio']['caduta_tensione_perc']:.2f}%",
+         f"{risultato_cavi['bt_dettaglio']['verifica_portata']} {risultato_cavi['bt_dettaglio']['verifica_caduta']}"]
+    ]
+    
+    table = Table(data_cavi, colWidths=[2*cm, 2*cm, 2*cm, 2*cm, 2*cm, 2*cm])
+    table.setStyle(
+        TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 8),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+    story.append(table)
+    story.append(Spacer(1, 20))
+
+    # SEZIONE PERDITE E RENDIMENTO
+    story.append(Paragraph("BILANCIO ENERGETICO", heading_style))
+    perdite_totali = (calc.perdite_vuoto[potenza_trasf] + 
+                     calc.perdite_carico[potenza_trasf] + 
+                     risultato_cavi['perdite_totali_cavi_kw'] * 1000)
+    
+    rendimento = ((potenza_trasf * 1000 - perdite_totali) / (potenza_trasf * 1000)) * 100
+    
+    data_energia = [
+        ["Parametro", "Valore"],
+        ["Perdite trasformatore a vuoto", f"{calc.perdite_vuoto[potenza_trasf]} W"],
+        ["Perdite trasformatore a carico", f"{calc.perdite_carico[potenza_trasf]} W"],
+        ["Perdite cavi MT+BT", f"{risultato_cavi['perdite_totali_cavi_kw']:.2f} kW"],
+        ["Perdite totali", f"{perdite_totali/1000:.2f} kW"],
+        ["Rendimento stimato", f"{rendimento:.1f}%"]
+    ]
+    
+    table = Table(data_energia, colWidths=[6*cm, 6*cm])
+    table.setStyle(
+        TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+    story.append(table)
+    story.append(Spacer(1, 20))
+                        
     # Impianto di Terra
     story.append(Paragraph("IMPIANTO DI TERRA E SICUREZZA", heading_style))
     data_terra = [
