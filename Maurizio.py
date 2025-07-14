@@ -980,7 +980,7 @@ class CabinaMTBT:
         # DATI PROTEZIONI ESTRATTI
         # Estrai le correnti di taratura dalle tue protezioni esistenti
         I_rele_51_mt = I_mt * 1.25  # Soglia temporizzata MT
-        I_rele_50_mt = I_mt * 10  # Soglia istantanea MT
+        I_rele_50_mt = I_mt * 20  # Soglia istantanea MT
 
         # Interruttore BT - estrai dalla stringa
         I_int_bt_str = prot_bt["interruttore_generale"].split("A")[0]
