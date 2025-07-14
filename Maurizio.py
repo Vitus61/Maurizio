@@ -508,7 +508,7 @@ class CabinaMTBT:
                                   ventilazione,
                                   rendimento,
                                   anni_esercizio=25,
-                                  costo_energia_kwh=0.25):
+                                  costo_energia_kwh=0.20):
         """
         Analisi economica completa: investimenti, costi esercizio, ammortamenti
         """
