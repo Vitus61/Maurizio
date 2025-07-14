@@ -138,13 +138,13 @@ class CabinaMTBT:
         }
 
         return {
-                "interruttore": f"{self.Um_mt/1000:.0f}kV - {I_int}A - 16kA - 1s",
-                "ta_protezione": f"{primario_ta}/5A cl.5P20",
-                "tv_misure": f"{self.V_mt}/100V cl.0.5",
-                "scaricatori": self.dimensiona_scaricatori()['specifica'],
-                "sezionatore_terra": "630A - 20kV (CEI 0-16 - messa a terra DG-trasformatore)", 
-                "tarature": tarature
-            }
+            "interruttore": f"{self.Um_mt/1000:.0f}kV - {I_int}A - 16kA - 1s",
+            "ta_protezione": f"{primario_ta}/5A cl.5P20",
+            "tv_misure": f"{self.V_mt}/100V cl.0.5",
+            "scaricatori": "21kV - 10kA classe 1",
+            "sezionatore_terra": "630A - 20kV (CEI 0-16 - messa a terra DG-trasformatore)", 
+            "tarature": tarature
+        }
 
     def dimensiona_protezioni_bt(self, I_bt, Icc_bt):
         """Dimensiona protezioni BT"""
@@ -1469,11 +1469,21 @@ class CabinaMTBT:
 
     def dimensiona_scaricatori(self):
         """Dimensiona scaricatori sovratensione MT"""
-        # Dati rete 20kV
+        # Dati rete
         Un = self.V_mt  # 20kV
         Um = self.Um_mt  # 24kV
-        # Tensione continua scaricatori (87% di Um)
-        Uc = Um * 0.87 / 1000  # kV
+        
+        # Valori standard commerciali
+        if Un == 15000:
+            Uc = 9.6   # kV
+            prodotto = "DEHN 990004"
+        elif Un == 20000:
+            Uc = 12.0  # kV  
+            prodotto = "DEHN 990005"
+        else:
+            Uc = Um * 0.87 / 1000  # Fallback calcolo originale
+            prodotto = "Classe 2"
+            
         # Livello protezione (coordinato con BIL apparecchiature)
         Up_apparecchiature = 125  # kV BIL
         Up_scaricatori = Up_apparecchiature * 0.8  # kV (coordinamento)
@@ -1481,13 +1491,7 @@ class CabinaMTBT:
         In_scarica = 10  # kA (classe 2 per distribuzione)
         # Energia specifica (per reti 20kV)
         W_energia = 4.5  # kJ/kVUc
-        # Prodotto commerciale
-        if Un == 15000:
-            prodotto = "DEHN 990004"
-        elif Un == 20000:
-            prodotto = "DEHN 990005"
-        else:
-            prodotto = "Classe 2"
+        
         return {
             "Uc": round(Uc, 1),
             "Up": round(Up_scaricatori, 0),
