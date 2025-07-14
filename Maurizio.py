@@ -428,6 +428,15 @@ class CabinaMTBT:
 
         # Fallback se non trova cavi adatti
         if not cavo_mt_selezionato:
+            sezione_max = max(cavi_mt_pro.keys())
+            dati_max = cavi_mt_pro[sezione_max]
+            I_ammissibile_max = dati_max["portata_base"] * k_temp * k_raggr * k_posa
+            R_tot = dati_max["R"] * (lunghezza_mt / 1000)
+            X_tot = dati_max["X"] * (lunghezza_mt / 1000)
+            cos_phi = 0.85
+            sin_phi = math.sqrt(1 - cos_phi**2)
+            dV_perc = (math.sqrt(3) * I_mt * (R_tot * cos_phi + X_tot * sin_phi) * 100) / self.V_mt
+            perdite_kw = 3 * (I_mt**2) * R_tot / 1000
             cavo_mt_selezionato = {
                 "sezione": 500,
                 "portata_corretta": 400,
@@ -438,23 +447,25 @@ class CabinaMTBT:
             }
             
         if not cavo_bt_selezionato:
-            # Calcola con fattori corretti invece di usare valori fissi
-            I_ammissibile_630 = 735 * k_temp * k_raggr_bt * k_posa * k_armoniche
-            R_tot = 0.036 * (lunghezza_bt / 1000)
-            X_tot = 0.035 * (lunghezza_bt / 1000)
+            sezione_max = max(cavi_bt_pro.keys())
+            dati_max = cavi_bt_pro[sezione_max]
+    
+            I_ammissibile_max = dati_max["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
+            R_tot = dati_max["R"] * (lunghezza_bt / 1000)
+            X_tot = dati_max["X"] * (lunghezza_bt / 1000)
             cos_phi = 0.85
             sin_phi = math.sqrt(1 - cos_phi**2)
             dV_perc = (math.sqrt(3) * I_bt * (R_tot * cos_phi + X_tot * sin_phi) * 100) / self.V_bt
             perdite_kw = 3 * (I_bt**2) * R_tot / 1000
-
+    
             cavo_bt_selezionato = {
-                "sezione": 630,
-                "portata_corretta": I_ammissibile_630,
+                "sezione": sezione_max,
+                "portata_corretta": I_ammissibile_max,
                 "caduta_tensione_perc": dV_perc,
                 "perdite_kw": perdite_kw,
-                "R_ohm_km": 0.036,
-                "X_ohm_km": 0.035,
-                "verifica_portata": "✅ OK" if I_ammissibile_630 >= I_bt_progetto else "⚠️ LIMITE",
+                "R_ohm_km": dati_max["R"],
+                "X_ohm_km": dati_max["X"],
+                "verifica_portata": "✅ OK" if I_ammissibile_max >= I_bt_progetto else "⚠️ LIMITE",
                 "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "⚠️ LIMITE"
             }
 
