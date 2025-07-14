@@ -142,14 +142,14 @@ class CabinaMTBT:
             "ta_protezione": f"{primario_ta}/5A cl.5P20",
             "tv_misure": f"{self.V_mt}/100V cl.0.5",
             "scaricatori": "21kV - 10kA classe 1",
-            "sezionatore_terra":  {
+            "sezionatore_terra":  
                 "tipo: Sezionatore di terra a 3 posizioni",
                 "corrente_nominale: 630A",
                 "tensione: 20kV / 24kV",
                 "funzione: Messa a terra cavo DG-trasformatore",
                 "normativa: CEI 0-16 - Obbligatorio",
                 "comando: Manuale con interblocchi"
-            }, 
+            , 
             "tarature": tarature
         }
 
