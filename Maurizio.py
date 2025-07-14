@@ -383,12 +383,26 @@ class CabinaMTBT:
                     break
 
         # SELEZIONE CAVO BT con verifiche
+        # SELEZIONE CAVO BT con verifiche
         I_bt_progetto = I_bt * 1.15  # Fattore sicurezza
         cavo_bt_selezionato = None
-
         for sezione, dati in cavi_bt_pro.items():
             # Portata corretta
-            I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa
+            //I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa
+            # 1. Calcolare fattore armoniche
+        if 'armoniche_result' in locals() and armoniche_result:
+            THD_corrente = armoniche_result.get('THD_corrente_perc', 0)
+        if THD_corrente > 15:
+            k_armoniche = 0.85  # Derating per armoniche
+        elif THD_corrente > 10:
+            k_armoniche = 0.92
+        else:
+            k_armoniche = 1.0
+    else:
+        k_armoniche = 1.0
+
+# 2. Applicare fattore armoniche
+I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
 
             if I_ammissibile >= I_bt_progetto:
                 # Verifica caduta tensione
