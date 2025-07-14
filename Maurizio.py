@@ -400,34 +400,34 @@ class CabinaMTBT:
             k_armoniche = 1.0
   
 
-# 2. Applicare fattore armoniche
-            I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
+    # 2. Applicare fattore armoniche
+    I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
 
-            if I_ammissibile >= I_bt_progetto:
-                # Verifica caduta tensione
-                R_tot = dati["R"] * (lunghezza_bt / 1000)  # Ω
-                X_tot = dati["X"] * (lunghezza_bt / 1000)  # Ω
-                cos_phi = 0.85
-                sin_phi = math.sqrt(1 - cos_phi**2)
+    if I_ammissibile >= I_bt_progetto:
+        # Verifica caduta tensione
+        R_tot = dati["R"] * (lunghezza_bt / 1000)  # Ω
+        X_tot = dati["X"] * (lunghezza_bt / 1000)  # Ω
+        cos_phi = 0.85
+        sin_phi = math.sqrt(1 - cos_phi**2)
 
-                dV_perc = (math.sqrt(3) * I_bt *
+        dV_perc = (math.sqrt(3) * I_bt *
                            (R_tot * cos_phi + X_tot * sin_phi) *
                            100) / self.V_bt
 
-                if dV_perc <= 4.0:  # Limite CEI per BT
-                    perdite_kw = 3 * (I_bt**2) * R_tot / 1000
+        if dV_perc <= 4.0:  # Limite CEI per BT
+            perdite_kw = 3 * (I_bt**2) * R_tot / 1000
 
-                    cavo_bt_selezionato = {
-                        "sezione": sezione,
-                        "portata_corretta": I_ammissibile,
-                        "caduta_tensione_perc": dV_perc,
-                        "perdite_kw": perdite_kw,
-                        "R_ohm_km": dati["R"],
-                        "X_ohm_km": dati["X"],
-                        "verifica_portata": "✅ OK",
-                        "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "❌ NO"
-                    }
-                  break
+            cavo_bt_selezionato = {
+                "sezione": sezione,
+                "portata_corretta": I_ammissibile,
+                "caduta_tensione_perc": dV_perc,
+                "perdite_kw": perdite_kw,
+                "R_ohm_km": dati["R"],
+                "X_ohm_km": dati["X"],
+                "verifica_portata": "✅ OK",
+                "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "❌ NO"
+          }
+          break
 
         # Fallback se non trova cavi adatti
         if not cavo_mt_selezionato:
