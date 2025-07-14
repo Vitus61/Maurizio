@@ -980,13 +980,14 @@ class CabinaMTBT:
         """
         
         # ✅ TARATURE PROFESSIONALI per selettività MT/BT
-        I_rele_51_mt = I_mt * 1.5    # 150% In - Backup per guasti persistenti BT
-        I_rele_50_mt = Icc_bt * 0.4 * (self.V_bt / self.V_mt)  # 40% Icc BT riportata (backup estremo)
+        I_rele_51_mt = I_mt * 3.0    # 150% In - Backup per guasti persistenti BT
+        I_rele_50_mt = Icc_bt * 0.8 * (self.V_bt / self.V_mt)  # 80% Icc BT riportata (backup estremo)
         
         # Interruttore BT - estrai dalla stringa
         I_int_bt_str = prot_bt["interruttore_generale"].split("A")[0]
         I_int_bt = float(I_int_bt_str)
-    
+
+        
         # ✅ CURVE COMPLETAMENTE RIDEISEGNATE PER SELETTIVITÀ
         
         def tempo_rele_51_mt(corrente):
@@ -994,7 +995,9 @@ class CabinaMTBT:
             Relè 51 MT - Curva VERY INVERSE (più ripida e appropriata)
             Formula: t = TMS × [13.5 / ((I/Is) - 1)]
             """
+            
             if corrente < I_rele_51_mt:
+                
                 return float('inf')
             
             rapporto = corrente / I_rele_51_mt
@@ -1002,26 +1005,36 @@ class CabinaMTBT:
                 return float('inf')
             
             # ✅ VERY INVERSE invece di Normal Inverse - MOLTO più ripida!
-            TMS = 0.4  # TMS moderato per Very Inverse
-            return TMS * (13.5 / (rapporto - 1))
+            TMS = 0.8  # TMS moderato per Very Inverse
+            tempo = TMS * (13.5 / (rapporto - 1))  # ← CALCOLA QUI
+            
+            return tempo
     
         def tempo_rele_50_mt(corrente):
             """
             Relè 50 MT - Istantaneo con ritardo coordinamento
             """
+            
             if corrente >= I_rele_50_mt:
+                
                 return 0.3  # 300ms ritardo per coordinamento con BT
-            return float('inf')
+            else:
+                
+                return float('inf')
     
         def tempo_interruttore_bt(corrente, I_int_bt, K_mag=10, K_term=1.45):
             """
             Interruttore BT - Curve REALISTICHE per magnetotermici moderni
             """
+            
+            
             I_mag_bt = I_int_bt * K_mag
             I_term_bt = I_int_bt * K_term
-    
+            
+            
             if corrente >= I_mag_bt:
                 # Intervento magnetico: 5-15ms tipico per interruttori moderni
+                   
                 return 0.01  # 10ms
             elif corrente >= I_term_bt:
                 rapporto = corrente / I_int_bt
@@ -1029,19 +1042,26 @@ class CabinaMTBT:
                 # ✅ CURVA TERMICA REALISTICA basata su dati costruttori
                 # Per magnetotermici moderni, la curva è molto più veloce per CC
                 if rapporto >= 50:    # >50×In: zona cortocircuito alto
+                    
                     return 0.02       # 20ms
                 elif rapporto >= 20:  # >20×In: zona cortocircuito medio  
+                    
                     return 0.05       # 50ms
                 elif rapporto >= 10:  # >10×In: zona magnetica/CC basso
+                    
                     return 0.1        # 100ms
                 elif rapporto >= 5:   # >5×In: sovraccarico forte
+                    
                     return 0.5        # 500ms
                 elif rapporto >= 2:   # >2×In: sovraccarico normale
+                    
                     return 10.0       # 10s
                 else:                 # <2×In: zona termica normale
                     # Formula termica standard per bassi sovraccarichi
+                    
                     return min(3600 / (rapporto**2), 3600)  # Max 1 ora
             else:
+                
                 return float('inf')
     
         # ✅ PUNTI DI TEST GRADUALI e realistici
