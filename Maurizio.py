@@ -141,7 +141,7 @@ class CabinaMTBT:
             "interruttore": f"{self.Um_mt/1000:.0f}kV - {I_int}A - 16kA - 1s",
             "ta_protezione": f"{primario_ta}/5A cl.5P20",
             "tv_misure": f"{self.V_mt}/100V cl.0.5",
-            "scaricatori": "21kV - 10kA classe 1",
+            "scaricatori": self.dimensiona_scaricatori()['specifica'],
             "sezionatore_terra": "630A - 20kV (CEI 0-16 - messa a terra DG-trasformatore)", 
             "tarature": tarature
         }
