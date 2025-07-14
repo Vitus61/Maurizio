@@ -129,7 +129,7 @@ class CabinaMTBT:
 
         # Tarature relè
         tarature = {
-            "50 (Istantanea)": f"{I_mt * 10:.1f} A",
+            "50 (Istantanea)": f"{I_mt * 20:.1f} A",
             "51 (Temporizzata)": f"{I_mt * 1.25:.1f} A, t=0.4s",
             "50N (Terra Istant.)": "2.0 A",
             "51N (Terra Temp.)": "1.0 A, t=0.2s",
