@@ -402,7 +402,7 @@ class CabinaMTBT:
 
 # 2. Applicare fattore armoniche
 I_ammissibile = dati["portata_base"] * k_temp * k_raggr_bt * k_posa * k_armoniche
-if I_ammissibile >= I_bt_progetto:
+    if I_ammissibile >= I_bt_progetto:
         # Verifica caduta tensione
         R_tot = dati["R"] * (lunghezza_bt / 1000)  # Ω
         X_tot = dati["X"] * (lunghezza_bt / 1000)  # Ω
@@ -416,7 +416,8 @@ if I_ammissibile >= I_bt_progetto:
         if dV_perc <= 4.0:  # Limite CEI per BT
             perdite_kw = 3 * (I_bt**2) * R_tot / 1000
 
-            cavo_bt_selezionato = {
+            cavo_bt_selezionato = 
+          {
                 "sezione": sezione,
                 "portata_corretta": I_ammissibile,
                 "caduta_tensione_perc": dV_perc,
@@ -425,8 +426,8 @@ if I_ammissibile >= I_bt_progetto:
                 "X_ohm_km": dati["X"],
                 "verifica_portata": "✅ OK",
                 "verifica_caduta": "✅ OK" if dV_perc <= 4.0 else "❌ NO"
-            }
-            break
+          }
+          break
 
         # Fallback se non trova cavi adatti
         if not cavo_mt_selezionato:
