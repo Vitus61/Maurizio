@@ -2401,7 +2401,7 @@ st.sidebar.subheader("⚙️ Fattori di Correzione")
 
 f_contemporaneita = st.sidebar.slider(
     "Fattore Contemporaneità",
-    min_value=0.5, max_value=1.0, value=0.7, step=0.05,
+    min_value=0.5, max_value=1.0, value=0.75, step=0.05,
     help="Percentuale carichi contemporaneamente accesi")
 
 cos_phi = st.sidebar.slider(
@@ -2411,7 +2411,7 @@ cos_phi = st.sidebar.slider(
 
 margine = st.sidebar.slider(
     "Margine Espansioni",
-    min_value=1.0, max_value=1.5, value=1.2, step=0.1,
+    min_value=1.0, max_value=1.5, value=1.0, step=0.1,
     help="Margine per future espansioni")
 
 # Parametri terreno
@@ -2439,11 +2439,11 @@ st.sidebar.subheader("🔗 Parametri Cavi Avanzati")
 
 lunghezza_mt = st.sidebar.number_input(
     "Lunghezza Cavo MT (m)",
-    min_value=10, max_value=500, value=50, step=5)
+    min_value=10, max_value=500, value=30, step=5)
 
 lunghezza_bt = st.sidebar.number_input(
     "Lunghezza Cavo BT (m)",
-    min_value=5, max_value=200, value=30, step=5)
+    min_value=5, max_value=200, value=20, step=5)
 
 temp_ambiente = st.sidebar.slider(
     "Temperatura Ambiente (°C)",
