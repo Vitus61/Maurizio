@@ -85,9 +85,9 @@ class CabinaMTBT:
 
     def calcola_potenza_trasformatore(self,
                                       potenza_carichi,
-                                      f_contemporaneita=0.7,
+                                      f_contemporaneita=0.75,
                                       cos_phi=0.85,
-                                      margine=1.2):
+                                      margine=1.0):
         """Calcola potenza trasformatore necessaria"""
         potenza_necessaria = (potenza_carichi * f_contemporaneita *
                               margine) / cos_phi
