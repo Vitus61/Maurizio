@@ -2228,7 +2228,6 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     buffer.seek(0)
     return buffer
 
-
 # Inizializza la classe
 @st.cache_resource
 def init_calculator():
@@ -2237,8 +2236,7 @@ def init_calculator():
 
 # Header principale
 st.title("⚡ Calcolatore Cabina MT/BT - Maurizio srl")
-st.markdown(
-    "**Dimensionamento automatico cabine 20kV/400V secondo normative CEI**")
+st.markdown("**Dimensionamento automatico cabine 20kV/400V secondo normative CEI**")
 st.markdown("---")
 
 # Inizializza calcolatore
@@ -2247,45 +2245,36 @@ calc = init_calculator()
 # Inizializza session state
 if 'calcoli_effettuati' not in st.session_state:
     st.session_state.calcoli_effettuati = False
-if 'risultati' not in st.session_state:
-    st.session_state.risultati = {}
+if 'risultati_completi' not in st.session_state:
+    st.session_state.risultati_completi = {}
 
-# Sidebar per input
+# ============== SIDEBAR PER INPUT ==============
 st.sidebar.header("📊 Parametri di Input")
 
+# Parametri principali
 potenza_carichi = st.sidebar.number_input(
     "Potenza Carichi Totali (kW)",
-    min_value=10,
-    max_value=5000,
-    value=320,
-    step=10,
+    min_value=10, max_value=5000, value=320, step=10,
     help="Potenza totale di tutti i carichi da alimentare")
 
 st.sidebar.subheader("⚙️ Fattori di Correzione")
 
 f_contemporaneita = st.sidebar.slider(
     "Fattore Contemporaneità",
-    min_value=0.5,
-    max_value=1.0,
-    value=0.7,
-    step=0.05,
+    min_value=0.5, max_value=1.0, value=0.7, step=0.05,
     help="Percentuale carichi contemporaneamente accesi")
 
-cos_phi = st.sidebar.slider("Fattore di Potenza Medio",
-                            min_value=0.7,
-                            max_value=1.0,
-                            value=0.85,
-                            step=0.05,
-                            help="Fattore di potenza medio dei carichi")
+cos_phi = st.sidebar.slider(
+    "Fattore di Potenza Medio",
+    min_value=0.7, max_value=1.0, value=0.85, step=0.05,
+    help="Fattore di potenza medio dei carichi")
 
-margine = st.sidebar.slider("Margine Espansioni",
-                            min_value=1.0,
-                            max_value=1.5,
-                            value=1.2,
-                            step=0.1,
-                            help="Margine per future espansioni")
+margine = st.sidebar.slider(
+    "Margine Espansioni",
+    min_value=1.0, max_value=1.5, value=1.2, step=0.1,
+    help="Margine per future espansioni")
 
-# Nella sezione sidebar, dopo margine:
+# Parametri terreno
 st.sidebar.subheader("🌍 Parametri Terreno")
 
 resistivita_terreno = st.sidebar.selectbox(
@@ -2294,7 +2283,6 @@ resistivita_terreno = st.sidebar.selectbox(
     index=3,  # default 100
     help="Resistività del terreno (Ω⋅m)")
 
-# Aggiungi anche una descrizione
 terreno_desc = {
     30: "Terreno umido/argilloso (ottimo)",
     50: "Terreno misto umido (buono)",
@@ -2304,28 +2292,22 @@ terreno_desc = {
     200: "Terreno difficile",
     300: "Terreno roccioso/arido (pessimo)"
 }
-# AGGIUNGI QUESTI PARAMETRI ALLA TUA SIDEBAR (dopo i parametri terreno)
+st.sidebar.info(f"**{terreno_desc[resistivita_terreno]}**")
 
-# NUOVA SEZIONE: Parametri Cavi Professionali
+# Parametri cavi avanzati
 st.sidebar.subheader("🔗 Parametri Cavi Avanzati")
 
-lunghezza_mt = st.sidebar.number_input("Lunghezza Cavo MT (m)",
-                                       min_value=10,
-                                       max_value=500,
-                                       value=50,
-                                       step=5)
+lunghezza_mt = st.sidebar.number_input(
+    "Lunghezza Cavo MT (m)",
+    min_value=10, max_value=500, value=50, step=5)
 
-lunghezza_bt = st.sidebar.number_input("Lunghezza Cavo BT (m)",
-                                       min_value=5,
-                                       max_value=200,
-                                       value=30,
-                                       step=5)
+lunghezza_bt = st.sidebar.number_input(
+    "Lunghezza Cavo BT (m)",
+    min_value=5, max_value=200, value=30, step=5)
 
-temp_ambiente = st.sidebar.slider("Temperatura Ambiente (°C)",
-                                  min_value=30,
-                                  max_value=50,
-                                  value=30,
-                                  step=5)
+temp_ambiente = st.sidebar.slider(
+    "Temperatura Ambiente (°C)",
+    min_value=30, max_value=50, value=30, step=5)
 
 tipo_posa = st.sidebar.selectbox(
     "Tipo di Posa",
@@ -2333,32 +2315,28 @@ tipo_posa = st.sidebar.selectbox(
     index=0,
     help="Modalità di posa dei cavi")
 
-n_cavi_mt = st.sidebar.selectbox("N° Cavi MT Raggruppati",
-                                 options=[1, 2, 3, 4, 6],
-                                 index=0,
-                                 help="Numero cavi MT nello stesso percorso")
+n_cavi_mt = st.sidebar.selectbox(
+    "N° Cavi MT Raggruppati",
+    options=[1, 2, 3, 4, 6], index=0,
+    help="Numero cavi MT nello stesso percorso")
 
-n_cavi_bt = st.sidebar.selectbox("N° Cavi BT Raggruppati",
-                                 options=[1, 2, 3, 4, 6, 9],
-                                 index=0,
-                                 help="Numero cavi BT nello stesso percorso")
+n_cavi_bt = st.sidebar.selectbox(
+    "N° Cavi BT Raggruppati",
+    options=[1, 2, 3, 4, 6, 9], index=0,
+    help="Numero cavi BT nello stesso percorso")
 
-# NUOVA SEZIONE: Parametri Analisi Economica
+# Parametri economici
 st.sidebar.subheader("💰 Parametri Economici")
 
-anni_esercizio = st.sidebar.slider("Anni di Esercizio",
-                                   min_value=15,
-                                   max_value=40,
-                                   value=25,
-                                   step=5)
+anni_esercizio = st.sidebar.slider(
+    "Anni di Esercizio",
+    min_value=15, max_value=40, value=25, step=5)
 
-costo_energia = st.sidebar.number_input("Costo Energia (€/kWh)",
-                                        min_value=0.10,
-                                        max_value=0.50,
-                                        value=0.25,
-                                        step=0.01)
+costo_energia = st.sidebar.number_input(
+    "Costo Energia (€/kWh)",
+    min_value=0.10, max_value=0.50, value=0.25, step=0.01)
 
-# NUOVA SEZIONE: Parametri Armoniche
+# Parametri armoniche
 st.sidebar.subheader("📊 Analisi Armoniche")
 
 tipo_carichi = st.sidebar.selectbox(
@@ -2367,7 +2345,6 @@ tipo_carichi = st.sidebar.selectbox(
     index=1,
     help="Tipo prevalente di carichi elettrici")
 
-# Aggiungi descrizione del tipo selezionato
 descrizioni_carichi = {
     "lineare": "Motori, resistenze, illuminazione tradizionale",
     "misto": "Mix industriale tipico (60% lineare, 40% non lineare)",
@@ -2376,466 +2353,152 @@ descrizioni_carichi = {
 }
 st.sidebar.info(f"**{descrizioni_carichi[tipo_carichi]}**")
 
-# MODIFICA LA SEZIONE CALCOLI PRINCIPALI
-if st.session_state.calcoli_effettuati:
-    # I tuoi calcoli esistenti...
-    potenza_trasf, potenza_necessaria = calc.calcola_potenza_trasformatore(
-        potenza_carichi, f_contemporaneita, cos_phi, margine)
-    I_mt, I_bt = calc.calcola_correnti(potenza_trasf)
-    Icc_bt = calc.calcola_cortocircuito_bt(potenza_trasf)
-
-    prot_mt = calc.dimensiona_protezioni_mt(I_mt)
-    prot_bt = calc.dimensiona_protezioni_bt(I_bt, Icc_bt)
-
-    # NUOVO: Usa il metodo cavi professionale
-    cavi_pro = calc.calcola_sezioni_cavi_professionale(
-        I_mt, I_bt, lunghezza_mt, lunghezza_bt, temp_ambiente, tipo_posa,
-        n_cavi_mt, n_cavi_bt)
-
-    # Mantieni compatibilità con il codice esistente
-    cavi = cavi_pro  # Ora cavi contiene tutti i dati professionali
-
-    # Altri calcoli esistenti...
-    ventilazione = calc.calcola_ventilazione(potenza_trasf)
-    rendimento = calc.calcola_rendimento(potenza_trasf)
-    # ... tutti gli altri tuoi calcoli ...
-
-    # NUOVI CALCOLI PROFESSIONALI
-    cortocircuito_avanzato = calc.calcola_cortocircuito_avanzato(
-        potenza_trasf, lunghezza_mt, cavi_pro['sez_mt'])
-
-    selettivita = calc.verifica_selettivita_protezioni(
-        I_mt, I_bt, cortocircuito_avanzato['Icc_simm_mt_kA'] * 1000,
-        cortocircuito_avanzato['Icc_simm_bt_kA'] * 1000, prot_mt, prot_bt)
-
-    analisi_economica = calc.calcola_analisi_economica(potenza_trasf, cavi_pro,
-                                                       ventilazione,
-                                                       rendimento,
-                                                       anni_esercizio,
-                                                       costo_energia)
-
-    armoniche = calc.calcola_analisi_armoniche(potenza_trasf, tipo_carichi,
-                                               I_bt)
-
-    # LAYOUT RISULTATI (dopo i tuoi layout esistenti)
-
-    # NUOVA SEZIONE: Calcoli Avanzati
-    st.markdown("---")
-    st.subheader("🎯 Calcoli Ingegneristici Avanzati")
-
-    # Tab per organizzare i risultati
-    tab1, tab2, tab3, tab4 = st.tabs(
-        ["🔗 Cavi Pro", "⚡ Cortocircuito", "🛡️ Selettività", "💰 Economica"])
-
-    with tab1:
-        st.markdown("#### 🔗 Dimensionamento Cavi Professionale")
-
-        col_cavi1, col_cavi2 = st.columns(2)
-
-        with col_cavi1:
-            st.markdown("**📊 Cavo MT Selezionato**")
-            mt_det = cavi_pro['mt_dettaglio']
-            df_mt_pro = pd.DataFrame({
-                "Parametro": [
-                    "Sezione", "Portata corretta", "Caduta tensione",
-                    "Perdite", "Resistenza", "Reattanza", "Verifica portata",
-                    "Verifica caduta"
-                ],
-                "Valore": [
-                    f"{mt_det['sezione']} mmq",
-                    f"{mt_det['portata_corretta']:.0f} A",
-                    f"{mt_det['caduta_tensione_perc']:.3f}%",
-                    f"{mt_det['perdite_kw']:.2f} kW",
-                    f"{mt_det['R_ohm_km']:.3f} Ω/km",
-                    f"{mt_det['X_ohm_km']:.3f} Ω/km",
-                    mt_det['verifica_portata'], mt_det['verifica_caduta']
-                ]
-            })
-            st.dataframe(df_mt_pro, hide_index=True)
-
-        with col_cavi2:
-            st.markdown("**🔌 Cavo BT Selezionato**")
-            bt_det = cavi_pro['bt_dettaglio']
-            df_bt_pro = pd.DataFrame({
-                "Parametro": [
-                    "Sezione", "Portata corretta", "Caduta tensione",
-                    "Perdite", "Resistenza", "Reattanza", "Verifica portata",
-                    "Verifica caduta"
-                ],
-                "Valore": [
-                    f"{bt_det['sezione']} mmq",
-                    f"{bt_det['portata_corretta']:.0f} A",
-                    f"{bt_det['caduta_tensione_perc']:.2f}%",
-                    f"{bt_det['perdite_kw']:.2f} kW",
-                    f"{bt_det['R_ohm_km']:.3f} Ω/km",
-                    f"{bt_det['X_ohm_km']:.3f} Ω/km",
-                    bt_det['verifica_portata'], bt_det['verifica_caduta']
-                ]
-            })
-            st.dataframe(df_bt_pro, hide_index=True)
-
-        # Fattori di correzione applicati
-        st.markdown("**⚙️ Fattori di Correzione Applicati**")
-        fattori = cavi_pro['fattori_correzione']
-        col_f1, col_f2, col_f3 = st.columns(3)
-
-        with col_f1:
-            st.metric("Temperatura", f"{fattori['k_temp']:.2f}",
-                      f"@ {fattori['temp_ambiente']}°C")
-        with col_f2:
-            st.metric("Raggruppamento MT", f"{fattori['k_raggr_mt']:.2f}",
-                      f"{n_cavi_mt} cavi")
-        with col_f3:
-            st.metric("Tipo Posa", f"{fattori['k_posa']:.2f}",
-                      fattori['tipo_posa'])
-
-        # Perdite totali cavi
-        st.metric("🔥 Perdite Totali Cavi",
-                  f"{cavi_pro['perdite_totali_cavi_kw']:.2f} kW")
-
-    with tab2:
-        st.markdown("#### ⚡ Analisi Cortocircuito Completa")
-
-        col_cc1, col_cc2 = st.columns(2)
-
-        with col_cc1:
-            st.markdown("**🔋 Lato MT**")
-            df_cc_mt = pd.DataFrame({
-                "Parametro": [
-                    "Icc simmetrica", "Corrente di picco", "Energia I²t",
-                    "Impedenza totale", "Resistenza totale",
-                    "Reattanza totale", "Verifica termica cavo"
-                ],
-                "Valore": [
-                    f"{cortocircuito_avanzato['Icc_simm_mt_kA']:.2f} kA",
-                    f"{cortocircuito_avanzato['Ip_mt_kA']:.2f} kA",
-                    f"{cortocircuito_avanzato['I2t_mt_MA2s']:.3f} MA²s",
-                    f"{cortocircuito_avanzato['Z_tot_mt_ohm']:.4f} Ω",
-                    f"{cortocircuito_avanzato['R_cavo_mt_ohm']:.4f} Ω",
-                    f"{cortocircuito_avanzato['X_cavo_mt_ohm']:.4f} Ω",
-                    cortocircuito_avanzato['verifica_termica_mt']
-                ]
-            })
-            st.dataframe(df_cc_mt, hide_index=True)
-
-        with col_cc2:
-            st.markdown("**⚡ Lato BT**")
-            df_cc_bt = pd.DataFrame({
-                "Parametro": [
-                    "Icc simmetrica", "Corrente di picco", "Energia I²t",
-                    "Impedenza totale", "Resistenza trasf.",
-                    "Reattanza trasf.", "Sezione min. termica"
-                ],
-                "Valore": [
-                    f"{cortocircuito_avanzato['Icc_simm_bt_kA']:.2f} kA",
-                    f"{cortocircuito_avanzato['Ip_bt_kA']:.2f} kA",
-                    f"{cortocircuito_avanzato['I2t_bt_MA2s']:.3f} MA²s",
-                    f"{cortocircuito_avanzato['Z_tot_bt_ohm']:.4f} Ω",
-                    f"{cortocircuito_avanzato['R_trasf_bt_ohm']:.4f} Ω",
-                    f"{cortocircuito_avanzato['X_trasf_bt_ohm']:.4f} Ω",
-                    f"{cortocircuito_avanzato['Smin_termica_bt_mmq']:.1f} mmq"
-                ]
-            })
-            st.dataframe(df_cc_bt, hide_index=True)
-
-        # Potenza cortocircuito rete
-        st.info(
-            f"🏭 **Potenza cortocircuito rete:** {cortocircuito_avanzato['Scc_rete_MVA']:.0f} MVA"
-        )
-
-    with tab3:
-        st.markdown("#### 🛡️ Verifica Selettività Protezioni")
-
-        # Status generale
-        valutazione = selettivita['valutazione_complessiva']
-        if "OK" in valutazione:
-            st.success(f"✅ {valutazione}")
-        else:
-            st.error(f"❌ {valutazione}")
-
-        st.write(
-            f"**Punti testati:** {selettivita['n_punti_testati']} | **Problemi:** {selettivita['n_problemi']}"
-        )
-
-        # Tabella risultati selettività
-        if selettivita['risultati_selettivita']:
-            df_sel = pd.DataFrame(selettivita['risultati_selettivita'])
-            df_sel_display = df_sel[[
-                'corrente_test_kA', 'tempo_bt_s', 'tempo_mt_s', 'selettivita',
-                'margine_s'
-            ]].copy()
-            df_sel_display.columns = [
-                'I test (kA)', 'Tempo BT (s)', 'Tempo MT (s)', 'Selettività',
-                'Margine (s)'
-            ]
-            st.dataframe(df_sel_display, hide_index=True)
-
-        # Problemi di coordinamento
-        if selettivita['problemi_coordinamento']:
-            st.markdown("**⚠️ Problemi di Coordinamento:**")
-            for problema in selettivita['problemi_coordinamento']:
-                st.warning(
-                    f"• I = {problema['corrente_kA']:.1f} kA: {problema['problema']}"
-                )
-
-        # Raccomandazioni
-        st.markdown("**📋 Raccomandazioni:**")
-        for racc in selettivita['raccomandazioni']:
-            st.write(f"• {racc}")
-
-    with tab4:
-        st.markdown("#### 💰 Analisi Economica Completa")
-
-        # Metrics principali
-        capex = analisi_economica['capex']['totale']
-        opex = analisi_economica['opex_annuo']['totale']
-        tco = analisi_economica['indicatori']['tco_25_anni']
-
-        col_eco1, col_eco2, col_eco3 = st.columns(3)
-        with col_eco1:
-            st.metric("💰 CAPEX Totale", f"€ {capex:,.0f}")
-        with col_eco2:
-            st.metric("📊 OPEX Annuo", f"€ {opex:,.0f}")
-        with col_eco3:
-            st.metric("🎯 TCO 25 anni", f"€ {tco:,.0f}")
-
-        # Breakdown CAPEX
-        st.markdown("**💸 Dettaglio Investimenti (CAPEX)**")
-        capex_data = analisi_economica['capex']
-        df_capex = pd.DataFrame({
-            "Componente": [
-                "Trasformatore", "Quadro MT", "Quadro BT", "Cavi MT",
-                "Cavi BT", "Opere civili", "Installazione"
-            ],
-            "Costo (€)": [
-                capex_data['trasformatore'], capex_data['quadro_mt'],
-                capex_data['quadro_bt'], capex_data['cavi_mt'],
-                capex_data['cavi_bt'], capex_data['opere_civili'],
-                capex_data['installazione']
-            ],
-            "% sul totale":
-            [(capex_data['trasformatore'] / capex_data['totale']) * 100,
-             (capex_data['quadro_mt'] / capex_data['totale']) * 100,
-             (capex_data['quadro_bt'] / capex_data['totale']) * 100,
-             (capex_data['cavi_mt'] / capex_data['totale']) * 100,
-             (capex_data['cavi_bt'] / capex_data['totale']) * 100,
-             (capex_data['opere_civili'] / capex_data['totale']) * 100,
-             (capex_data['installazione'] / capex_data['totale']) * 100]
-        })
-        df_capex['Costo (€)'] = df_capex['Costo (€)'].apply(
-            lambda x: f"€ {x:,.0f}")
-        df_capex['% sul totale'] = df_capex['% sul totale'].apply(
-            lambda x: f"{x:.1f}%")
-        st.dataframe(df_capex, hide_index=True)
-
-        # Perdite energetiche
-        st.markdown("**⚡ Perdite Energetiche**")
-        perdite = analisi_economica['perdite_energia']
-        col_perd1, col_perd2 = st.columns(2)
-
-        with col_perd1:
-            st.metric("Perdite Totali", f"{perdite['totale_kw']:.1f} kW")
-            st.metric("Energia Persa/Anno",
-                      f"{perdite['energia_persa_anno_kwh']:,.0f} kWh")
-        with col_perd2:
-            st.metric("Costo Perdite/Anno",
-                      f"€ {perdite['costo_anno_euro']:,.0f}")
-            costo_per_kw = analisi_economica['indicatori']['costo_per_kw']
-            st.metric("Costo per kW", f"€ {costo_per_kw:,.0f}/kW")
-
-        # Raccomandazioni economiche
-        st.markdown("**💡 Raccomandazioni Economiche:**")
-        for racc in analisi_economica['raccomandazioni']:
-            st.write(f"• {racc}")
-
-    # NUOVA SEZIONE: Armoniche
-    st.markdown("---")
-    st.subheader("📊 Analisi Armoniche e Power Quality")
-
-    col_arm1, col_arm2 = st.columns(2)
-
-    with col_arm1:
-        # Power Quality Status
-        pq_status = armoniche['valutazione_power_quality']
-        if "BUONA" in pq_status:
-            st.success(f"✅ Power Quality: {pq_status}")
-        elif "ACCETTABILE" in pq_status:
-            st.warning(f"⚠️ Power Quality: {pq_status}")
-        else:
-            st.error(f"❌ Power Quality: {pq_status}")
-
-        # THD values
-        col_thd1, col_thd2 = st.columns(2)
-        with col_thd1:
-            st.metric("THD Corrente", f"{armoniche['THD_corrente_perc']:.1f}%")
-        with col_thd2:
-            st.metric("THD Tensione", f"{armoniche['THD_tensione_perc']:.1f}%")
-
-        # Verifiche normative
-        st.markdown("**📋 Verifiche Normative**")
-        verif_v = armoniche['verifiche_tensione']['THD_totale']
-        verif_i = armoniche['verifiche_corrente']['THD_totale']
-
-        df_verifiche = pd.DataFrame({
-            "Parametro": ["THD Tensione", "THD Corrente"],
-            "Valore": [
-                f"{verif_v['valore_perc']:.1f}%",
-                f"{verif_i['valore_perc']:.1f}%"
-            ],
-            "Limite": [
-                f"{verif_v['limite_perc']:.1f}%",
-                f"{verif_i['limite_perc']:.1f}%"
-            ],
-            "Verifica": [verif_v['verifica'], verif_i['verifica']]
-        })
-        st.dataframe(df_verifiche, hide_index=True)
-
-    with col_arm2:
-        # Correnti armoniche
-        st.markdown("**⚡ Correnti Armoniche Principali**")
-        correnti_arm = armoniche['correnti_armoniche_A']
-        df_arm = pd.DataFrame({
-            "Armonica": [f"{h}ª" for h in correnti_arm.keys() if h > 1],
-            "Corrente (A)":
-            [f"{I:.1f}" for h, I in correnti_arm.items() if h > 1],
-            "% Fondamentale": [
-                f"{(I/correnti_arm[1]*100):.1f}%"
-                for h, I in correnti_arm.items() if h > 1
-            ]
-        })
-        st.dataframe(df_arm, hide_index=True)
-
-        # Effetti
-        st.markdown("**🔥 Effetti delle Armoniche**")
-        effetti = armoniche['effetti_armoniche']
-        st.metric("Perdite Aggiuntive",
-                  f"+{effetti['perdite_aggiuntive_perc']:.1f}%")
-        st.metric("Fattore Cresta", f"{armoniche['fattore_cresta']:.2f}")
-        st.metric("Sovradim. Neutro",
-                  f"×{effetti['sovradimensionamento_neutro']:.1f}")
-
-    # Raccomandazioni armoniche
-    if armoniche['raccomandazioni']:
-        st.markdown("**💡 Raccomandazioni Power Quality:**")
-        for racc in armoniche['raccomandazioni']:
-            st.write(f"• {racc}")
-
-# IL RESTO DEL TUO CODICE RIMANE IDENTICO...
-# (tutte le altre sezioni che hai già: protezioni, isolamento, impianto terra, ecc.)
-    st.sidebar.info(f"**{terreno_desc[resistivita_terreno]}**")
 # Pulsante calcolo
-if st.sidebar.button("🔄 CALCOLA DIMENSIONAMENTO", type="primary"):
-    st.session_state.calcoli_effettuati = True
+calcola_button = st.sidebar.button("🔄 CALCOLA DIMENSIONAMENTO", type="primary")
 
-if st.session_state.calcoli_effettuati:
-    # Calcoli principali
+# Sidebar footer
+st.sidebar.markdown("---")
+st.sidebar.markdown("**Versione 2.1** | Calcoli Avanzati Completi")
+st.sidebar.markdown("⚡ Cabine MT/BT Calculator Pro")
+
+
+# ============== LOGICA CALCOLI ==============
+if calcola_button:
+    st.session_state.calcoli_effettuati = True
+    
+    # Mostra progress bar
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    # CALCOLI BASE
+    status_text.text("🔄 Calcolo potenza trasformatore...")
+    progress_bar.progress(10)
+    
     potenza_trasf, potenza_necessaria = calc.calcola_potenza_trasformatore(
         potenza_carichi, f_contemporaneita, cos_phi, margine)
-
+    
+    status_text.text("⚡ Calcolo correnti...")
+    progress_bar.progress(20)
+    
     I_mt, I_bt = calc.calcola_correnti(potenza_trasf)
     Icc_bt = calc.calcola_cortocircuito_bt(potenza_trasf)
-
+    
+    status_text.text("🛡️ Dimensionamento protezioni...")
+    progress_bar.progress(30)
+    
     prot_mt = calc.dimensiona_protezioni_mt(I_mt)
     prot_bt = calc.dimensiona_protezioni_bt(I_bt, Icc_bt)
-    cavi = calc.calcola_sezioni_cavi_professionale(I_mt, I_bt, lunghezza_mt,
-                                                   lunghezza_bt, temp_ambiente,
-                                                   tipo_posa, n_cavi_mt,
-                                                   n_cavi_bt)
+    
+    status_text.text("🔗 Calcolo cavi professionali...")
+    progress_bar.progress(40)
+    
+    cavi = calc.calcola_sezioni_cavi_professionale(
+        I_mt, I_bt, lunghezza_mt, lunghezza_bt, temp_ambiente, 
+        tipo_posa, n_cavi_mt, n_cavi_bt)
+    
+    status_text.text("🌬️ Calcolo ventilazione e prestazioni...")
+    progress_bar.progress(50)
+    
     ventilazione = calc.calcola_ventilazione(potenza_trasf)
     rendimento = calc.calcola_rendimento(potenza_trasf)
-
-    # NUOVI CALCOLI INGEGNERISTICI
+    
+    # CALCOLI AVANZATI (TUTTI INSIEME)
+    status_text.text("⚡ Analisi cortocircuito avanzata...")
+    progress_bar.progress(60)
+    
+    cortocircuito_avanzato = calc.calcola_cortocircuito_avanzato(
+        potenza_trasf, lunghezza_mt, cavi['sez_mt'])
+    
+    status_text.text("🛡️ Verifica selettività protezioni...")
+    progress_bar.progress(70)
+    
+    selettivita = calc.verifica_selettivita_protezioni(
+        I_mt, I_bt, 
+        cortocircuito_avanzato['Icc_simm_mt_kA'] * 1000,
+        cortocircuito_avanzato['Icc_simm_bt_kA'] * 1000, 
+        prot_mt, prot_bt)
+    
+    status_text.text("💰 Analisi economica...")
+    progress_bar.progress(80)
+    
+    analisi_economica = calc.calcola_analisi_economica(
+        potenza_trasf, cavi, ventilazione, rendimento,
+        anni_esercizio, costo_energia)
+    
+    status_text.text("📊 Analisi armoniche...")
+    progress_bar.progress(90)
+    
+    armoniche = calc.calcola_analisi_armoniche(potenza_trasf, tipo_carichi, I_bt)
+    
+    # CALCOLI INGEGNERISTICI STANDARD
     isolamento = calc.calcola_caratteristiche_isolamento(potenza_trasf)
     illuminazione = calc.calcola_illuminazione()
-    cadute_tensione = calc.calcola_cadute_tensione(I_mt,
-                                                   I_bt,
-                                                   sez_mt=cavi['sez_mt'],
+    cadute_tensione = calc.calcola_cadute_tensione(I_mt, I_bt, 
+                                                   sez_mt=cavi['sez_mt'], 
                                                    sez_bt=cavi['sez_bt'])
     scaricatori = calc.dimensiona_scaricatori()
     antincendio = calc.verifica_antincendio(potenza_trasf)
     regime_neutro = calc.calcola_regime_neutro(potenza_trasf)
     verifiche_costruttive = calc.calcola_verifiche_costruttive(potenza_trasf)
-
-    # IMPIANTO DI TERRA (versione corretta)
-
+    
+    # CALCOLO IMPIANTO DI TERRA
     lunghezza_cabina = 6  # m
     larghezza_cabina = 4  # m
     area_cabina = lunghezza_cabina * larghezza_cabina
-
+    
     # Calcolo resistenza anello perimetrale
     perimetro = 2 * (lunghezza_cabina + larghezza_cabina)
     raggio_equiv = math.sqrt(area_cabina / math.pi)
     R_anello = resistivita_terreno / (2 * math.pi * raggio_equiv)
-
-    # CALCOLO AUTOMATICO picchetti in base al terreno
+    
+    # Calcolo automatico picchetti in base al terreno
     if resistivita_terreno <= 50:
-        n_picchetti = 4  # Terreno buono
+        n_picchetti = 4
         sezione_anello = 50
     elif resistivita_terreno <= 100:
-        n_picchetti = 6  # Terreno medio
+        n_picchetti = 6
         sezione_anello = 70
     elif resistivita_terreno <= 200:
-        n_picchetti = 8  # Terreno difficile
+        n_picchetti = 8
         sezione_anello = 95
     else:
-        n_picchetti = 10  # Terreno pessimo
+        n_picchetti = 10
         sezione_anello = 120
-
+    
     lunghezza_picchetto = 3.0
-    R_singolo_picchetto = resistivita_terreno / (2 * math.pi *
-                                                 lunghezza_picchetto)
+    R_singolo_picchetto = resistivita_terreno / (2 * math.pi * lunghezza_picchetto)
     R_picchetti_parallelo = R_singolo_picchetto / (n_picchetti * 0.65)
-
-    # Resistenza totale (anello + picchetti in parallelo)
+    
+    # Resistenza totale
     R_terra_totale = 1 / (1 / R_anello + 1 / R_picchetti_parallelo)
-
-    # Verifiche tensioni (adattive)
+    
+    # Verifiche tensioni
     If_terra = 300  # A
     U_terra = If_terra * R_terra_totale
     U_passo_eff = min(45, 15 + (resistivita_terreno / 10))
     U_contatto_eff = min(20, 8 + (resistivita_terreno / 20))
-
+    
     impianto_terra = {
-        "resistivita_terreno":
-        resistivita_terreno,
-        "dimensioni_cabina":
-        f"{lunghezza_cabina}×{larghezza_cabina} m",
-        "area_cabina":
-        area_cabina,
-        "perimetro":
-        perimetro,
-        "sezione_anello":
-        sezione_anello,
-        "resistenza_anello":
-        R_anello,
-        "n_picchetti":
-        n_picchetti,
-        "lunghezza_picchetti":
-        lunghezza_picchetto,
-        "resistenza_picchetti":
-        R_picchetti_parallelo,
-        "resistenza_totale":
-        R_terra_totale,
-        "corrente_guasto":
-        If_terra,
-        "tensione_terra":
-        U_terra,
-        "tensione_passo_effettiva":
-        U_passo_eff,
-        "tensione_contatto_effettiva":
-        U_contatto_eff,
-        "verifica_resistenza":
-        "✅ OK" if R_terra_totale <= 1.0 else "❌ NON OK",
-        "verifica_passo":
-        "✅ OK" if U_passo_eff <= 50 else "❌ NON OK",
-        "verifica_contatto":
-        "✅ OK" if U_contatto_eff <= 25 else "❌ NON OK",
-        "sezione_pe_principale":
-        max(16, sezione_anello // 4),
-        "sezione_pe_masse":
-        max(6, sezione_anello // 8),
-        "protezione_catodica_richiesta":
-        resistivita_terreno > 200,
+        "resistivita_terreno": resistivita_terreno,
+        "dimensioni_cabina": f"{lunghezza_cabina}×{larghezza_cabina} m",
+        "area_cabina": area_cabina,
+        "perimetro": perimetro,
+        "sezione_anello": sezione_anello,
+        "resistenza_anello": R_anello,
+        "n_picchetti": n_picchetti,
+        "lunghezza_picchetti": lunghezza_picchetto,
+        "resistenza_picchetti": R_picchetti_parallelo,
+        "resistenza_totale": R_terra_totale,
+        "corrente_guasto": If_terra,
+        "tensione_terra": U_terra,
+        "tensione_passo_effettiva": U_passo_eff,
+        "tensione_contatto_effettiva": U_contatto_eff,
+        "verifica_resistenza": "✅ OK" if R_terra_totale <= 1.0 else "❌ NON OK",
+        "verifica_passo": "✅ OK" if U_passo_eff <= 50 else "❌ NON OK",
+        "verifica_contatto": "✅ OK" if U_contatto_eff <= 25 else "❌ NON OK",
+        "sezione_pe_principale": max(16, sezione_anello // 4),
+        "sezione_pe_masse": max(6, sezione_anello // 8),
+        "protezione_catodica_richiesta": resistivita_terreno > 200,
         "note": [
             f"Resistenza terra: {R_terra_totale:.2f}Ω {'(conforme CEI 11-1)' if R_terra_totale <= 1.0 else '(richiede miglioramenti)'}",
             f"Anello perimetrale {sezione_anello}mmq + {n_picchetti} picchetti da {lunghezza_picchetto}m",
@@ -2843,9 +2506,13 @@ if st.session_state.calcoli_effettuati:
             "Verificare misure periodiche resistenza terra (ogni 2 anni)"
         ]
     }
-
-    # Salva risultati in session state
-    st.session_state.risultati = {
+    
+    status_text.text("✅ Calcoli completati!")
+    progress_bar.progress(100)
+    
+    # SALVA TUTTI I RISULTATI IN SESSION STATE
+    st.session_state.risultati_completi = {
+        # Risultati base
         'potenza_trasf': potenza_trasf,
         'potenza_necessaria': potenza_necessaria,
         'I_mt': I_mt,
@@ -2856,6 +2523,14 @@ if st.session_state.calcoli_effettuati:
         'cavi': cavi,
         'ventilazione': ventilazione,
         'rendimento': rendimento,
+        
+        # Risultati avanzati
+        'cortocircuito_avanzato': cortocircuito_avanzato,
+        'selettivita': selettivita,
+        'analisi_economica': analisi_economica,
+        'armoniche': armoniche,
+        
+        # Risultati ingegneristici
         'isolamento': isolamento,
         'illuminazione': illuminazione,
         'cadute_tensione': cadute_tensione,
@@ -2863,374 +2538,513 @@ if st.session_state.calcoli_effettuati:
         'antincendio': antincendio,
         'regime_neutro': regime_neutro,
         'verifiche_costruttive': verifiche_costruttive,
-        'impianto_terra': impianto_terra
+        'impianto_terra': impianto_terra,
+        
+        # Parametri input per PDF
+        'parametri_input': {
+            'potenza_carichi': potenza_carichi,
+            'f_contemporaneita': f_contemporaneita,
+            'cos_phi': cos_phi,
+            'margine': margine,
+            'resistivita_terreno': resistivita_terreno,
+            'lunghezza_mt': lunghezza_mt,
+            'lunghezza_bt': lunghezza_bt,
+            'temp_ambiente': temp_ambiente,
+            'tipo_posa': tipo_posa,
+            'n_cavi_mt': n_cavi_mt,
+            'n_cavi_bt': n_cavi_bt,
+            'anni_esercizio': anni_esercizio,
+            'costo_energia': costo_energia,
+            'tipo_carichi': tipo_carichi
+        }
     }
+    
+    # Rimuovi progress bar
+    progress_bar.empty()
+    status_text.empty()
+    
+    # Mostra messaggio di successo
+    st.success("✅ Dimensionamento completato con successo! Tutti i calcoli sono stati eseguiti.")
 
-    # Layout a colonne - Dati principali
-    col1, col2 = st.columns(2)
 
+# ============== DISPLAY RISULTATI ORGANIZZATI ==============
+if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
+    
+    # Estrai risultati dal session state
+    r = st.session_state.risultati_completi
+    
+    # =================== SEZIONE 1: RISULTATI PRINCIPALI ===================
+    st.markdown("## 📊 Risultati Principali")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
     with col1:
-        # Trasformatore
-        st.subheader("🔌 Trasformatore")
-        st.success(f"**Potenza: {potenza_trasf} kVA**")
-        st.write(f"Potenza necessaria: {potenza_necessaria:.0f} kVA")
-        st.write(f"Collegamento: **Dyn11**")
-        st.write(f"Ucc: **{calc.ucc[potenza_trasf]}%**")
-
-        # Correnti
-        st.subheader("⚡ Correnti")
-        df_correnti = pd.DataFrame({
-            "Parametro": ["Nominale MT", "Nominale BT", "Cortocircuito BT"],
-            "Valore":
-            [f"{I_mt:.1f} A", f"{I_bt:.0f} A", f"{Icc_bt/1000:.1f} kA"]
-        })
-        st.dataframe(df_correnti, hide_index=True)
-
+        st.metric("🔌 Trasformatore", f"{r['potenza_trasf']} kVA", 
+                  f"Richiesto: {r['potenza_necessaria']:.0f} kVA")
+        
     with col2:
-        # Cavi
-        st.subheader("🔗 Dimensionamento Cavi")
-        df_cavi = pd.DataFrame({
-            "Tipo": ["Cavo MT", "Cavo BT"],
-            "Sezione": [f"{cavi['sez_mt']} mmq", f"{cavi['sez_bt']} mmq"],
-            "Portata": [f"{cavi['portata_mt']} A", f"{cavi['portata_bt']} A"],
-            "Richiesta": [
-                f"{cavi['I_mt_richiesta']:.0f} A",
-                f"{cavi['I_bt_richiesta']:.0f} A"
-            ]
-        })
-        st.dataframe(df_cavi, hide_index=True)
-
-        # Ventilazione
-        st.subheader("💨 Ventilazione")
-        df_vent = pd.DataFrame({
-            "Parametro": [
-                "Perdite Totali", "Portata Aria", "Griglia Ingresso",
-                "Griglia Uscita"
-            ],
-            "Valore": [
-                f"{ventilazione['perdite_totali']:.2f} kW",
-                f"{ventilazione['portata_aria']:.0f} m³/h",
-                f"{ventilazione['sez_ingresso']:.2f} m²",
-                f"{ventilazione['sez_uscita']:.2f} m²"
-            ]
-        })
-        st.dataframe(df_vent, hide_index=True)
-
-        # Rendimento
-        st.subheader("📈 Prestazioni")
-        st.metric("Rendimento", f"{rendimento['rendimento']:.2f}%")
-        st.write(f"Potenza Utile: {rendimento['potenza_utile']:.1f} kW")
-        st.write(f"Perdite a Vuoto: {rendimento['perdite_vuoto']:.2f} kW")
-        st.write(f"Perdite a Carico: {rendimento['perdite_carico']:.2f} kW")
-
-    # Sezione Protezioni - Affiancate
+        st.metric("⚡ Corrente MT", f"{r['I_mt']:.1f} A")
+        st.metric("⚡ Corrente BT", f"{r['I_bt']:.0f} A")
+        
+    with col3:
+        st.metric("🔥 Cortocircuito BT", f"{r['Icc_bt']/1000:.1f} kA")
+        st.metric("🔗 Cavo MT", f"{r['cavi']['sez_mt']} mm²")
+        
+    with col4:
+        st.metric("🔗 Cavo BT", f"{r['cavi']['sez_bt']} mm²")
+        st.metric("📈 Rendimento", f"{r['rendimento']['rendimento']:.1f}%")
+    
     st.markdown("---")
-    st.subheader("🛡️ Sistemi di Protezione")
-
+    
+    # =================== SEZIONE 2: PROTEZIONI ===================
+    st.markdown("## 🛡️ Sistemi di Protezione")
+    
     col_prot1, col_prot2 = st.columns(2)
-
+    
     with col_prot1:
-        st.markdown("#### Protezioni MT (SPGI)")
-        st.info(f"**Interruttore SF6:** {prot_mt['interruttore']}")
-        st.write(f"**TA Protezione:** {prot_mt['ta_protezione']}")
-        st.write(f"**TV Misure:** {prot_mt['tv_misure']}")
-        st.write(f"**Scaricatori:** {prot_mt['scaricatori']}")
-        st.write(f"**Sezionatore Terra:** {prot_mt['sezionatore_terra']}")
-
-        # Tarature relè
+        st.markdown("### Protezioni MT (SPGI)")
+        st.info(f"**Interruttore SF6:** {r['prot_mt']['interruttore']}")
+        st.write(f"**TA Protezione:** {r['prot_mt']['ta_protezione']}")
+        st.write(f"**TV Misure:** {r['prot_mt']['tv_misure']}")
+        st.write(f"**Scaricatori:** {r['prot_mt']['scaricatori']}")
+        
+        # Tarature relè in formato compatto
         st.markdown("**⚙️ Tarature Relè:**")
-        df_tarature = pd.DataFrame(list(prot_mt['tarature'].items()),
-                                   columns=['Funzione', 'Taratura'])
-        st.dataframe(df_tarature, hide_index=True)
-
+        for func, tar in r['prot_mt']['tarature'].items():
+            st.write(f"• **{func}:** {tar}")
+    
     with col_prot2:
-        st.markdown("#### Protezioni BT")
-        st.info(
-            f"**Interruttore Generale:** {prot_bt['interruttore_generale']}")
-        st.write(f"**Differenziale:** {prot_bt['differenziale']}")
-        st.write(f"**Icc Secondario:** {prot_bt['icc_bt']:.1f} kA")
-
-    # NUOVE SEZIONI INGEGNERISTICHE
+        st.markdown("### Protezioni BT")
+        st.info(f"**Interruttore Generale:** {r['prot_bt']['interruttore_generale']}")
+        st.write(f"**Differenziale:** {r['prot_bt']['differenziale']}")
+        st.write(f"**Icc Secondario:** {r['prot_bt']['icc_bt']:.1f} kA")
+    
     st.markdown("---")
-    st.subheader("🔬 Calcoli Ingegneristici Avanzati")
-
-    # Caratteristiche isolamento e cadute tensione
-    col_ing1, col_ing2 = st.columns(2)
-
-    with col_ing1:
-        st.markdown("#### ⚡ Caratteristiche Isolamento MT")
-        df_isolamento = pd.DataFrame({
-            "Parametro": [
-                "Tensione massima (Um)", "Tenuta 50Hz secco",
-                "Tenuta 50Hz pioggia", "Tenuta impulso (BIL)",
-                "Sollecitazione termica (I²t)", "Capacità stabilimento"
-            ],
-            "Valore": [
-                f"{isolamento['Um']:.0f} kV",
-                f"{isolamento['Ud_secco']:.0f} kV",
-                f"{isolamento['Ud_pioggia']:.0f} kV",
-                f"{isolamento['Up']:.0f} kV", f"{isolamento['I2t']:.0f} kA²s",
-                f"{isolamento['Ip']:.1f} kA"
+    
+    # =================== SEZIONE 3: CALCOLI AVANZATI ===================
+    st.markdown("## 🎯 Calcoli Ingegneristici Avanzati")
+    
+    # Tab per organizzare i risultati avanzati
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🔗 Cavi Professionali", 
+        "⚡ Cortocircuito Avanzato", 
+        "🛡️ Selettività", 
+        "💰 Analisi Economica", 
+        "📊 Armoniche"
+    ])
+    
+    with tab1:
+        st.markdown("### 🔗 Dimensionamento Cavi Professionale")
+        
+        col_mt, col_bt = st.columns(2)
+        
+        with col_mt:
+            st.markdown("**📊 Cavo MT**")
+            mt_det = r['cavi']['mt_dettaglio']
+            df_mt = pd.DataFrame({
+                "Parametro": ["Sezione", "Portata corretta", "Caduta tensione", "Perdite", "Verifica"],
+                "Valore": [
+                    f"{mt_det['sezione']} mm²",
+                    f"{mt_det['portata_corretta']:.0f} A",
+                    f"{mt_det['caduta_tensione_perc']:.3f}%",
+                    f"{mt_det['perdite_kw']:.2f} kW",
+                    f"{mt_det['verifica_portata']} {mt_det['verifica_caduta']}"
+                ]
+            })
+            st.dataframe(df_mt, hide_index=True)
+        
+        with col_bt:
+            st.markdown("**🔌 Cavo BT**")
+            bt_det = r['cavi']['bt_dettaglio']
+            df_bt = pd.DataFrame({
+                "Parametro": ["Sezione", "Portata corretta", "Caduta tensione", "Perdite", "Verifica"],
+                "Valore": [
+                    f"{bt_det['sezione']} mm²",
+                    f"{bt_det['portata_corretta']:.0f} A",
+                    f"{bt_det['caduta_tensione_perc']:.2f}%",
+                    f"{bt_det['perdite_kw']:.2f} kW",
+                    f"{bt_det['verifica_portata']} {bt_det['verifica_caduta']}"
+                ]
+            })
+            st.dataframe(df_bt, hide_index=True)
+        
+        # Fattori di correzione
+        st.markdown("**⚙️ Fattori di Correzione**")
+        fattori = r['cavi']['fattori_correzione']
+        col_f1, col_f2, col_f3, col_f4 = st.columns(4)
+        
+        with col_f1:
+            st.metric("Temperatura", f"{fattori['k_temp']:.2f}", f"@ {fattori['temp_ambiente']}°C")
+        with col_f2:
+            st.metric("Raggruppamento MT", f"{fattori['k_raggr_mt']:.2f}")
+        with col_f3:
+            st.metric("Raggruppamento BT", f"{fattori['k_raggr_bt']:.2f}")
+        with col_f4:
+            st.metric("Tipo Posa", f"{fattori['k_posa']:.2f}", fattori['tipo_posa'])
+    
+    with tab2:
+        st.markdown("### ⚡ Analisi Cortocircuito Completa")
+        
+        col_cc1, col_cc2 = st.columns(2)
+        
+        with col_cc1:
+            st.markdown("**🔋 Lato MT**")
+            cc_mt = r['cortocircuito_avanzato']
+            df_cc_mt = pd.DataFrame({
+                "Parametro": ["Icc simmetrica", "Corrente di picco", "Energia I²t", "Impedenza totale"],
+                "Valore": [
+                    f"{cc_mt['Icc_simm_mt_kA']:.2f} kA",
+                    f"{cc_mt['Ip_mt_kA']:.2f} kA",
+                    f"{cc_mt['I2t_mt_MA2s']:.3f} MA²s",
+                    f"{cc_mt['Z_tot_mt_ohm']:.4f} Ω"
+                ]
+            })
+            st.dataframe(df_cc_mt, hide_index=True)
+        
+        with col_cc2:
+            st.markdown("**⚡ Lato BT**")
+            df_cc_bt = pd.DataFrame({
+                "Parametro": ["Icc simmetrica", "Corrente di picco", "Energia I²t", "Impedenza totale"],
+                "Valore": [
+                    f"{cc_mt['Icc_simm_bt_kA']:.2f} kA",
+                    f"{cc_mt['Ip_bt_kA']:.2f} kA",
+                    f"{cc_mt['I2t_bt_MA2s']:.3f} MA²s",
+                    f"{cc_mt['Z_tot_bt_ohm']:.4f} Ω"
+                ]
+            })
+            st.dataframe(df_cc_bt, hide_index=True)
+        
+        st.info(f"🏭 **Potenza cortocircuito rete:** {cc_mt['Scc_rete_MVA']:.0f} MVA")
+    
+    with tab3:
+        st.markdown("### 🛡️ Verifica Selettività Protezioni")
+        
+        sel = r['selettivita']
+        valutazione = sel['valutazione_complessiva']
+        
+        if "ECCELLENTE" in valutazione or "BUONA" in valutazione:
+            st.success(f"✅ {valutazione}")
+        elif "ACCETTABILE" in valutazione:
+            st.warning(f"⚠️ {valutazione}")
+        else:
+            st.error(f"❌ {valutazione}")
+        
+        col_sel1, col_sel2 = st.columns(2)
+        
+        with col_sel1:
+            st.metric("Punti Testati", sel['n_punti_testati'])
+            st.metric("Punti OK", sel['n_punti_ok'])
+        
+        with col_sel2:
+            st.metric("Problemi", sel['n_problemi'])
+            st.metric("Successo", f"{sel['percentuale_successo']:.1f}%")
+        
+        # Tabella risultati selettività (solo i primi 5 per brevità)
+        if sel['risultati_selettivita']:
+            st.markdown("**📊 Risultati Selettività (campione):**")
+            df_sel = pd.DataFrame(sel['risultati_selettivita'][:5])
+            df_sel_display = df_sel[['corrente_test_kA', 'tempo_bt_s', 'tempo_mt_s', 'selettivita']].copy()
+            df_sel_display.columns = ['I test (kA)', 'Tempo BT (s)', 'Tempo MT (s)', 'Selettività']
+            st.dataframe(df_sel_display, hide_index=True)
+    
+    with tab4:
+        st.markdown("### 💰 Analisi Economica Completa")
+        
+        eco = r['analisi_economica']
+        
+        # Metrics principali
+        col_eco1, col_eco2, col_eco3 = st.columns(3)
+        
+        with col_eco1:
+            st.metric("💰 CAPEX", f"€ {eco['capex']['totale']:,.0f}")
+            
+        with col_eco2:
+            st.metric("📊 OPEX Annuo", f"€ {eco['opex_annuo']['totale']:,.0f}")
+            
+        with col_eco3:
+            st.metric("🎯 TCO (25 anni)", f"€ {eco['indicatori']['tco_25_anni']:,.0f}")
+        
+        # Breakdown CAPEX
+        st.markdown("**💸 Dettaglio Investimenti:**")
+        capex_data = eco['capex']
+        df_capex = pd.DataFrame({
+            "Componente": ["Trasformatore", "Quadro MT", "Quadro BT", "Cavi", "Opere civili"],
+            "Costo (€)": [
+                f"€ {capex_data['trasformatore']:,.0f}",
+                f"€ {capex_data['quadro_mt']:,.0f}",
+                f"€ {capex_data['quadro_bt']:,.0f}",
+                f"€ {capex_data['cavi_mt'] + capex_data['cavi_bt']:,.0f}",
+                f"€ {capex_data['opere_civili']:,.0f}"
             ]
         })
-        st.dataframe(df_isolamento, hide_index=True)
-
-        # Scaricatori
-        st.markdown("#### 🛡️ Scaricatori Sovratensione")
-        st.info(f"**Specifica:** {scaricatori['specifica']}")
-        st.write(f"**Livello protezione:** {scaricatori['Up']:.0f} kV")
-        st.write(f"**Energia specifica:** {scaricatori['energia']} kJ/kVUc")
-
-    with col_ing2:
-        st.markdown("#### 📉 Cadute di Tensione")
-        df_cadute = pd.DataFrame({
-            "Parametro": [
-                "Lunghezza MT", "Caduta tensione MT", "Verifica MT (≤0.5%)",
-                "Lunghezza BT", "Caduta tensione BT", "Verifica BT (≤4%)"
-            ],
-            "Valore": [
-                f"{cadute_tensione['lunghezza_mt']} m",
-                f"{cadute_tensione['dV_mt_perc']:.2f}%",
-                cadute_tensione['verifica_mt'],
-                f"{cadute_tensione['lunghezza_bt']} m",
-                f"{cadute_tensione['dV_bt_perc']:.2f}%",
-                cadute_tensione['verifica_bt']
-            ]
-        })
-        st.dataframe(df_cadute, hide_index=True)
-
-        # Illuminazione
-        st.markdown("#### 💡 Illuminazione Calcolata")
-        df_illuminazione = pd.DataFrame({
-            "Parametro": [
-                "Apparecchi normali", "Potenza normale",
-                "Apparecchi emergenza", "Potenza emergenza", "Consumo totale"
-            ],
-            "Valore": [
-                f"{illuminazione['n_apparecchi_normali']} pz",
-                f"{illuminazione['potenza_normale']} W",
-                f"{illuminazione['n_apparecchi_emergenza']} pz",
-                f"{illuminazione['potenza_emergenza']} W",
-                f"{illuminazione['consumo_totale']} W"
-            ]
-        })
-        st.dataframe(df_illuminazione, hide_index=True)
-
-    # Antincendio e regime neutro
+        st.dataframe(df_capex, hide_index=True)
+        
+        # Perdite energetiche
+        st.markdown("**⚡ Perdite Energetiche:**")
+        perdite = eco['perdite_energia']
+        col_perd1, col_perd2 = st.columns(2)
+        
+        with col_perd1:
+            st.metric("Perdite Totali", f"{perdite['totale_kw']:.1f} kW")
+            
+        with col_perd2:
+            st.metric("Costo Annuo", f"€ {perdite['costo_anno_euro']:,.0f}")
+    
+    with tab5:
+        st.markdown("### 📊 Analisi Armoniche e Power Quality")
+        
+        arm = r['armoniche']
+        
+        # Power Quality Status
+        pq_status = arm['valutazione_power_quality']
+        if "BUONA" in pq_status:
+            st.success(f"✅ {pq_status}")
+        elif "ACCETTABILE" in pq_status:
+            st.warning(f"⚠️ {pq_status}")
+        else:
+            st.error(f"❌ {pq_status}")
+        
+        col_arm1, col_arm2 = st.columns(2)
+        
+        with col_arm1:
+            st.metric("THD Corrente", f"{arm['THD_corrente_perc']:.1f}%")
+            st.metric("THD Tensione", f"{arm['THD_tensione_perc']:.1f}%")
+            st.metric("Fattore Cresta", f"{arm['fattore_cresta']:.2f}")
+        
+        with col_arm2:
+            # Verifiche normative
+            verif_v = arm['verifiche_tensione']['THD_totale']
+            verif_i = arm['verifiche_corrente']['THD_totale']
+            
+            st.metric("Verifica THD-V", verif_v['verifica'], f"Limite: {verif_v['limite_perc']:.1f}%")
+            st.metric("Verifica THD-I", verif_i['verifica'], f"Limite: {verif_i['limite_perc']:.1f}%")
+            
+            effetti = arm['effetti_armoniche']
+            st.metric("Perdite Aggiuntive", f"+{effetti['perdite_aggiuntive_perc']:.1f}%")
+    
     st.markdown("---")
-    col_fire1, col_fire2 = st.columns(2)
-
-    with col_fire1:
-        st.markdown("#### 🔥 Verifica Antincendio")
-        if antincendio['soglia_superata']:
-            st.error(f"⚠️ **{antincendio['dm_applicabile']} APPLICABILE**")
-            st.write(
-                f"Volume olio: **{antincendio['volume_olio']} L** ({antincendio['volume_m3']:.1f} m³)"
-            )
+    
+    # =================== SEZIONE 4: CARATTERISTICHE TECNICHE ===================
+    st.markdown("## 🔬 Caratteristiche Tecniche")
+    
+    col_tech1, col_tech2 = st.columns(2)
+    
+    with col_tech1:
+        st.markdown("### ⚡ Isolamento MT")
+        iso = r['isolamento']
+        df_iso = pd.DataFrame({
+            "Parametro": ["Tensione massima (Um)", "Tenuta 50Hz secco", "Tenuta impulso (BIL)", "Sollecitazione termica"],
+            "Valore": [f"{iso['Um']:.0f} kV", f"{iso['Ud_secco']:.0f} kV", f"{iso['Up']:.0f} kV", f"{iso['I2t']:.0f} kA²s"]
+        })
+        st.dataframe(df_iso, hide_index=True)
+        
+        st.markdown("### 🔥 Verifica Antincendio")
+        anti = r['antincendio']
+        if anti['soglia_superata']:
+            st.error(f"⚠️ **{anti['dm_applicabile']} APPLICABILE**")
         else:
             st.success("✅ **Soglia antincendio NON superata**")
-            st.write(
-                f"Volume olio: {antincendio['volume_olio']} L ({antincendio['volume_m3']:.1f} m³)"
-            )
-
-        st.markdown("**Prescrizioni:**")
-        for prescrizione in antincendio['prescrizioni']:
-            st.write(f"• {prescrizione}")
-
-    with col_fire2:
-        st.markdown("#### 🔌 Regime Neutro BT")
-        st.info(
-            f"**Regime consigliato: {regime_neutro['regime_consigliato']}**")
-        st.write(f"**Motivo:** {regime_neutro['motivo']}")
-
-        st.markdown("**Protezioni specifiche:**")
-        for protezione in regime_neutro['protezioni_specifiche']:
-            st.write(f"• {protezione}")
-
-    # Verifiche costruttive
+        
+        st.write(f"Volume olio: {anti['volume_olio']} L ({anti['volume_m3']:.1f} m³)")
+    
+    with col_tech2:
+        st.markdown("### 💡 Illuminazione")
+        ill = r['illuminazione']
+        df_ill = pd.DataFrame({
+            "Parametro": ["Apparecchi normali", "Potenza normale", "Apparecchi emergenza", "Consumo totale"],
+            "Valore": [f"{ill['n_apparecchi_normali']} pz", f"{ill['potenza_normale']} W", 
+                      f"{ill['n_apparecchi_emergenza']} pz", f"{ill['consumo_totale']} W"]
+        })
+        st.dataframe(df_ill, hide_index=True)
+        
+        st.markdown("### 🔌 Regime Neutro BT")
+        reg = r['regime_neutro']
+        st.info(f"**Regime consigliato: {reg['regime_consigliato']}**")
+        st.write(f"**Motivo:** {reg['motivo']}")
+    
     st.markdown("---")
-    st.subheader("🏗️ Verifiche Costruttive")
-
-    col_cost1, col_cost2, col_cost3 = st.columns(3)
-
-    with col_cost1:
-        st.markdown("#### 📐 Locale Utente (U)")
-        df_locale_u = pd.DataFrame({
-            "Dimensione": [
-                "Lunghezza min", "Profondità min", "Altezza min", "Area min",
-                "Volume min"
-            ],
-            "Valore": [
-                f"{verifiche_costruttive['locale_u']['L']} m",
-                f"{verifiche_costruttive['locale_u']['P']} m",
-                f"{verifiche_costruttive['locale_u']['H']} m",
-                f"{verifiche_costruttive['area_min_u']} m²",
-                f"{verifiche_costruttive['volume_min_u']} m³"
-            ]
-        })
-        st.dataframe(df_locale_u, hide_index=True)
-
-    with col_cost2:
-        st.markdown("#### 📦 Locali C e M")
-        df_locali_cm = pd.DataFrame({
-            "Locale":
-            ["Consegna (C)", "Consegna (C)", "Misura (M)", "Misura (M)"],
-            "Parametro":
-            ["Dimensioni", "Ventilazione", "Dimensioni", "Ventilazione"],
-            "Valore": [
-                f"{verifiche_costruttive['locale_c']['L']}×{verifiche_costruttive['locale_c']['P']}×{verifiche_costruttive['locale_c']['H']} m",
-                f"{verifiche_costruttive['ventilazione_c']:.2f} m²",
-                f"{verifiche_costruttive['locale_m']['L']}×{verifiche_costruttive['locale_m']['P']}×{verifiche_costruttive['locale_m']['H']} m",
-                f"{verifiche_costruttive['ventilazione_m']:.2f} m²"
-            ]
-        })
-        st.dataframe(df_locali_cm, hide_index=True)
-
-    with col_cost3:
-        st.markdown("#### 🚪 Vie di Fuga")
-        df_fuga = pd.DataFrame({
-            "Parametro": [
-                "Lunghezza max vie fuga", "Larghezza min corridoi",
-                "Accesso C e M", "Accesso locale U"
-            ],
-            "Valore": [
-                f"{verifiche_costruttive['vie_fuga_max']} m",
-                f"{verifiche_costruttive['corridoi_min']} m",
-                "Da strada pubblica", "Privato"
-            ]
-        })
-        st.dataframe(df_fuga, hide_index=True)
-
-    # Impianto di Terra
-    st.markdown("---")
-    st.subheader("🌍 Impianto di Terra e Sicurezza")
-
+    
+    # =================== SEZIONE 5: IMPIANTO DI TERRA ===================
+    st.markdown("## 🌍 Impianto di Terra e Sicurezza")
+    
+    terra = r['impianto_terra']
+    
     col_terra1, col_terra2 = st.columns(2)
-
+    
     with col_terra1:
-        st.markdown("#### ⚡ Dispersori e Resistenze")
-        df_dispersori = pd.DataFrame({
-            "Parametro": [
-                "Resistività terreno", "Anello perimetrale",
-                "Resistenza anello", "N° picchetti", "Lunghezza picchetti",
-                "Resistenza totale"
-            ],
+        st.markdown("### ⚡ Dispersori")
+        df_disp = pd.DataFrame({
+            "Parametro": ["Resistività terreno", "Anello perimetrale", "N° picchetti", "Resistenza totale"],
             "Valore": [
-                f"{impianto_terra['resistivita_terreno']} Ω⋅m",
-                f"{impianto_terra['sezione_anello']} mmq",
-                f"{impianto_terra['resistenza_anello']:.2f} Ω",
-                f"{impianto_terra['n_picchetti']} pz × {impianto_terra['lunghezza_picchetti']} m",
-                f"{impianto_terra['lunghezza_picchetti']} m",
-                f"{impianto_terra['resistenza_totale']:.2f} Ω"
+                f"{terra['resistivita_terreno']} Ω⋅m",
+                f"{terra['sezione_anello']} mm²",
+                f"{terra['n_picchetti']} × {terra['lunghezza_picchetti']}m",
+                f"{terra['resistenza_totale']:.2f} Ω"
             ]
         })
-        st.dataframe(df_dispersori, hide_index=True)
-
+        st.dataframe(df_disp, hide_index=True)
+        
         # Status resistenza
-        if impianto_terra['resistenza_totale'] <= 1.0:
-            st.success(
-                f"✅ **Resistenza OK: {impianto_terra['resistenza_totale']:.2f}Ω ≤ 1Ω**"
-            )
+        if terra['resistenza_totale'] <= 1.0:
+            st.success(f"✅ **Resistenza OK: {terra['resistenza_totale']:.2f}Ω ≤ 1Ω**")
         else:
-            st.error(
-                f"❌ **Resistenza ELEVATA: {impianto_terra['resistenza_totale']:.2f}Ω > 1Ω**"
-            )
-
+            st.error(f"❌ **Resistenza ELEVATA: {terra['resistenza_totale']:.2f}Ω > 1Ω**")
+    
     with col_terra2:
-        st.markdown("#### 🛡️ Verifiche Sicurezza")
-        df_sicurezza = pd.DataFrame({
-            "Verifica": [
-                "Resistenza terra (≤1Ω)", "Tensione passo (≤50V)",
-                "Tensione contatto (≤25V)", "PE principale", "PE masse",
-                "Protezione catodica"
-            ],
-            "Risultato": [
-                impianto_terra['verifica_resistenza'],
-                impianto_terra['verifica_passo'],
-                impianto_terra['verifica_contatto'],
-                f"{impianto_terra['sezione_pe_principale']} mmq",
-                f"{impianto_terra['sezione_pe_masse']} mmq", "Raccomandata"
-                if impianto_terra['protezione_catodica_richiesta'] else
-                "Non necessaria"
-            ]
+        st.markdown("### 🛡️ Verifiche Sicurezza")
+        df_sicur = pd.DataFrame({
+            "Verifica": ["Resistenza terra", "Tensione passo", "Tensione contatto"],
+            "Risultato": [terra['verifica_resistenza'], terra['verifica_passo'], terra['verifica_contatto']],
+            "Limite": ["≤ 1Ω", "≤ 50V", "≤ 25V"]
         })
-        st.dataframe(df_sicurezza, hide_index=True)
-
-        # Note tecniche
-        st.markdown("**📋 Note Tecniche:**")
-        for nota in impianto_terra['note']:
+        st.dataframe(df_sicur, hide_index=True)
+        
+        st.markdown("**📋 Note Principali:**")
+        for nota in terra['note'][:3]:  # Solo le prime 3 note
             st.write(f"• {nota}")
-
-    # ← PULSANTE PDF DENTRO IL BLOCCO IF (ALLA FINE DEI RISULTATI)
+    
     st.markdown("---")
-    if st.button("📄 GENERA REPORT PDF", type="primary"):
-        r = st.session_state.risultati
-        try:
-            # Genera PDF
-            pdf_buffer = genera_pdf_report(
-                potenza_carichi, f_contemporaneita, cos_phi, margine,
-                r['potenza_trasf'], r['potenza_necessaria'], r['I_mt'],
-                r['I_bt'], r['Icc_bt'], r['prot_mt'], r['prot_bt'], r['cavi'],
-                r['ventilazione'], r['rendimento'], calc, r['isolamento'],
-                r['illuminazione'], r['cadute_tensione'], r['scaricatori'],
-                r['antincendio'], r['regime_neutro'],
-                r['verifiche_costruttive'], r['impianto_terra'])
 
+
+# =================== PULSANTE PDF (SENZA RICALCOLI) ===================
+    st.markdown("## 📄 Generazione Report")
+    
+    if st.button("📄 GENERA REPORT PDF", type="primary", use_container_width=True):
+        try:
+            # Estrai tutti i dati già calcolati
+            r = st.session_state.risultati_completi
+            p = r['parametri_input']
+            
+            # Genera PDF usando i dati già calcolati
+            pdf_buffer = genera_pdf_report(
+                p['potenza_carichi'], p['f_contemporaneita'], p['cos_phi'], p['margine'],
+                r['potenza_trasf'], r['potenza_necessaria'], r['I_mt'], r['I_bt'], r['Icc_bt'],
+                r['prot_mt'], r['prot_bt'], r['cavi'], r['ventilazione'], r['rendimento'], 
+                calc, r['isolamento'], r['illuminazione'], r['cadute_tensione'], 
+                r['scaricatori'], r['antincendio'], r['regime_neutro'], 
+                r['verifiche_costruttive'], r['impianto_terra']
+            )
+            
             # Nome file
             filename = f"Cabina_MT_BT_{r['potenza_trasf']}kVA_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
-
-            # Download
-            st.download_button(label="⬇️ Scarica Report PDF",
-                               data=pdf_buffer,
-                               file_name=filename,
-                               mime="application/pdf")
-
+            
+            # Download button
+            st.download_button(
+                label="⬇️ Scarica Report PDF",
+                data=pdf_buffer,
+                file_name=filename,
+                mime="application/pdf",
+                use_container_width=True
+            )
+            
             st.success("✅ Report PDF generato con successo!")
-
+            
         except Exception as e:
             st.error(f"❌ Errore nella generazione del PDF: {str(e)}")
-            st.info("💡 Assicurati di aver installato: pip install reportlab")
+            st.info("💡 Assicurati di aver installato reportlab: `pip install reportlab`")
 
+# ============== PAGINA INIZIALE (QUANDO NON CI SONO CALCOLI) ==============
 else:
-    # Pagina iniziale (FUORI DAL BLOCCO IF)
-    st.info(
-        "👈 Inserisci i parametri nella barra laterale e clicca **CALCOLA DIMENSIONAMENTO**"
-    )
-
-    # Informazioni generali
-    st.subheader("📖 Informazioni Generali")
-
+    # Messaggio informativo
+    st.info("👈 **Inserisci i parametri nella barra laterale e clicca 'CALCOLA DIMENSIONAMENTO'**")
+    
+    # Sezione informativa
+    st.markdown("## 📖 Informazioni sul Calcolatore")
+    
+    st.markdown("""
+    Questo calcolatore professionale per cabine MT/BT 20kV/400V esegue tutti i calcoli ingegneristici 
+    necessari secondo le normative CEI in vigore.
+    """)
+    
     col1, col2, col3 = st.columns(3)
-
+    
     with col1:
         st.markdown("""
-        **🔌 Trasformatori Standard**
-        - Potenze CEI 14-52
-        - Collegamento Dyn11
-        - Perdite categoria AAo/Bk
-        - Verifiche antincendio
+        ### 🔌 Calcoli Base
+        - **Trasformatori** CEI 14-52
+        - **Protezioni** MT/BT coordinate
+        - **Cavi** con fattori correzione
+        - **Ventilazione** dimensionata
+        - **Rendimento** calcolato
         """)
-
+    
     with col2:
         st.markdown("""
-        **🛡️ Protezioni Complete**
-        - SPGI per MT coordinato
-        - Caratteristiche isolamento
-        - Scaricatori dimensionati
-        - Regime neutro BT
+        ### 🎯 Calcoli Avanzati
+        - **Cortocircuito** completo
+        - **Selettività** protezioni
+        - **Analisi economica** TCO
+        - **Armoniche** e Power Quality
+        - **Impianto terra** sicuro
         """)
-
+    
     with col3:
         st.markdown("""
-        **⚙️ Calcoli Avanzati**
-        - Cadute tensione verificate
-        - Illuminazione dimensionata
-        - Verifiche costruttive
-        - Conformità normative
-        - Impianto di terra sicuro
+        ### 📋 Caratteristiche
+        - **Isolamento** MT completo
+        - **Antincendio** verifiche
+        - **Illuminazione** dimensionata
+        - **Verifiche** costruttive
+        - **Report PDF** professionale
         """)
-
-# Sidebar footer
-st.sidebar.markdown("---")
-st.sidebar.markdown("**Versione 2.1** | Calcoli Avanzati + Terra")
-st.sidebar.markdown("⚡ Cabine MT/BT Calculator Pro")
+    
+    st.markdown("---")
+    
+    # Sezione normative
+    st.markdown("## 📚 Normative di Riferimento")
+    
+    col_norm1, col_norm2 = st.columns(2)
+    
+    with col_norm1:
+        st.markdown("""
+        **🔌 Trasformatori e Protezioni:**
+        - CEI 14-52 (Trasformatori MT/BT)
+        - CEI 0-16 (Regola tecnica distributori)
+        - CEI 11-1 (Impianti di terra)
+        - CEI 11-25 (Calcolo cortocircuiti)
+        """)
+    
+    with col_norm2:
+        st.markdown("""
+        **⚡ Cavi e Sicurezza:**
+        - CEI 20-13 (Cavi MT)
+        - CEI 64-8 (Impianti BT)
+        - CEI 99-4 (Sicurezza antincendio)
+        - IEC 60909 (Correnti cortocircuito)
+        """)
+    
+    st.markdown("---")
+    
+    # Sezione esempi
+    st.markdown("## 💡 Esempi di Utilizzo")
+    
+    st.markdown("""
+    **🏭 Tipologie di Impianti Supportati:**
+    - Cabine per capannoni industriali
+    - Centri commerciali e uffici
+    - Complessi residenziali
+    - Data center e server farm
+    - Impianti con carichi speciali
+    """)
+    
+    # Note tecniche
+    st.markdown("## ⚠️ Note Tecniche")
+    
+    st.warning("""
+    **Importante:** Questo calcolatore fornisce un dimensionamento preliminare basato su dati standard. 
+    Per installazioni reali è sempre necessaria la progettazione dettagliata da parte di un ingegnere abilitato.
+    """)
+    
+    st.info("""
+    **Suggerimento:** Per ottenere risultati ottimali, inserire dati il più possibile precisi riguardo:
+    - Potenza effettiva dei carichi
+    - Caratteristiche del terreno
+    - Lunghezze reali dei cavi
+    - Tipologia prevalente di carichi (per analisi armoniche)
+    """)
+    
+    # Footer
+    st.markdown("---")
+    st.markdown("**Sviluppato da:** Maurizio srl - Impianti Elettrici")
+    st.markdown("**Versione:** 2.1 - Calcoli Avanzati Completi")
+    st.markdown("**Data:** " + datetime.now().strftime('%d/%m/%Y'))
