@@ -1418,21 +1418,107 @@ class CabinaMTBT:
         }
 
     def calcola_ventilazione(self, potenza_trasf, f_carico=0.8):
-        """Calcola ventilazione necessaria"""
-        Po = self.perdite_vuoto[potenza_trasf] / 1000
-        Pk = self.perdite_carico[potenza_trasf] / 1000
-
-        perdite_totali = Po + Pk * (f_carico**2)
-        Q = (perdite_totali * 3.6) / (15 * 1.2 * 1.005)
-
-        sez_ingresso = Q / (3600 * 0.7)
-        sez_uscita = sez_ingresso * 1.5
-
+        """
+        Calcola ventilazione con parametri fissi semplificati:
+        - Cabina: 6×4×2.5 m
+        - Altezza camino: 1.9 m
+        - ΔT: 13°C (45°C int, 32°C est)
+        """
+    
+        # PARAMETRI FISSI (secondo le tue specifiche)
+        lunghezza_cabina = 6.0      # m
+        larghezza_cabina = 4.0      # m  
+        altezza_cabina = 2.5        # m
+        altezza_camino = 1.9        # m (tra griglia bassa e alta)
+        delta_T = 13.0              # °C (45°C interni - 32°C esterni)
+        temp_esterna = 32.0         # °C
+        temp_interna = 45.0         # °C
+    
+        # CALCOLO PERDITE TERMICHE
+        Po = self.perdite_vuoto[potenza_trasf] / 1000        # kW perdite a vuoto
+        Pk = self.perdite_carico[potenza_trasf] / 1000       # kW perdite a carico
+        perdite_totali = Po + Pk * (f_carico**2)            # kW totali da smaltire
+    
+        # PARAMETRI ARIA (semplificati)
+        rho_aria = 1.15             # kg/m³ (a ~38°C temperatura media)
+        cp_aria = 1.005             # kJ/kg°C
+    
+        # PORTATA ARIA NECESSARIA (bilancio termico)
+        Q_necessaria = (perdite_totali * 3600) / (rho_aria * cp_aria * delta_T)  # m³/h
+    
+        # EFFETTO CAMINO (ventilazione naturale)
+        temp_media = (temp_esterna + temp_interna) / 2      # °C
+        v_camino = math.sqrt(2 * 9.81 * altezza_camino * delta_T / (273.15 + temp_media))  # m/s
+    
+        # VELOCITÀ EFFETTIVE (con perdite di carico)
+        v_ingresso = min(v_camino * 0.6, 0.8)               # m/s (max 0.8 per poco rumore)
+        v_uscita = v_ingresso * 1.1                         # m/s (leggermente superiore)
+    
+        # SEZIONI GRIGLIE
+        sez_netta_ingresso = Q_necessaria / (3600 * v_ingresso)      # m² netta
+        sez_netta_uscita = Q_necessaria / (3600 * v_uscita)         # m² netta
+    
+        # Sezioni totali (considerando 50% ostruzione griglia)
+        sez_totale_ingresso = sez_netta_ingresso / 0.5              # m² totale
+        sez_totale_uscita = sez_netta_uscita / 0.5                  # m² totale
+    
+        # VOLUME CABINA E RICAMBI
+        volume_cabina = lunghezza_cabina * larghezza_cabina * altezza_cabina  # m³
+        ricambi_ora = Q_necessaria / volume_cabina                           # ricambi/h
+    
+        # VERIFICA VENTILAZIONE NATURALE
+        Q_naturale_max = 3600 * sez_netta_ingresso * v_camino       # m³/h max naturale
+        ventilazione_naturale_ok = Q_naturale_max >= Q_necessaria
+    
         return {
+            # Perdite termiche
             "perdite_totali": perdite_totali,
-            "portata_aria": Q,
-            "sez_ingresso": sez_ingresso,
-            "sez_uscita": sez_uscita
+            "perdite_vuoto": Po,
+            "perdite_carico": Pk * (f_carico**2),
+        
+            # Portata aria
+            "portata_aria": Q_necessaria,                    # m³/h (compatibilità vecchia)
+            "portata_necessaria": Q_necessaria,              # m³/h
+            "portata_naturale_max": Q_naturale_max,          # m³/h
+            
+            # Sezioni griglie  
+            "sez_ingresso": sez_totale_ingresso,             # m² (compatibilità vecchia)
+            "sez_uscita": sez_totale_uscita,                 # m² (compatibilità vecchia)
+            "sez_netta_ingresso": sez_netta_ingresso,        # m² netta
+            "sez_netta_uscita": sez_netta_uscita,            # m² netta
+            "sez_totale_ingresso": sez_totale_ingresso,      # m² totale
+            "sez_totale_uscita": sez_totale_uscita,          # m² totale
+            
+            # Velocità aria
+            "velocita_ingresso": v_ingresso,                 # m/s
+            "velocita_uscita": v_uscita,                     # m/s
+            "velocita_camino": v_camino,                     # m/s teorica
+            
+            # Parametri fissi cabina
+            "dimensioni_cabina": f"{lunghezza_cabina}×{larghezza_cabina}×{altezza_cabina} m",
+            "volume_cabina": volume_cabina,                  # m³
+            "altezza_camino": altezza_camino,                # m
+            "ricambi_ora": ricambi_ora,                      # vol/h
+            
+            # Temperature
+            "temp_esterna": temp_esterna,                    # °C
+            "temp_interna": temp_interna,                    # °C  
+            "delta_temperatura": delta_T,                    # °C
+            
+            # Verifiche
+            "ventilazione_naturale_sufficiente": ventilazione_naturale_ok,
+            
+            # Note tecniche
+            "note": [
+                f"Cabina: {lunghezza_cabina}×{larghezza_cabina}×{altezza_cabina} m",
+                f"Effetto camino: {altezza_camino} m",
+                f"ΔT progetto: {delta_T}°C ({temp_interna}°C int - {temp_esterna}°C est)",
+                f"Ricambi aria: {ricambi_ora:.1f} vol/h",
+                f"Velocità aria: {v_ingresso:.2f} m/s ingresso, {v_uscita:.2f} m/s uscita",
+                "Ventilazione naturale sufficiente" if ventilazione_naturale_ok else "Ventilazione forzata necessaria",
+                f"Griglie nette: {sez_netta_ingresso:.3f} m² ing, {sez_netta_uscita:.3f} m² usc",
+                f"Griglie totali: {sez_totale_ingresso:.2f} m² ing, {sez_totale_uscita:.2f} m² usc"
+            ]
         }
 
     def calcola_rendimento(self, potenza_trasf, f_carico=0.8, cos_phi=0.95):
@@ -2595,9 +2681,12 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
         st.metric("📈 Rendimento", f"{r['rendimento']['rendimento']:.1f}%")
     
     st.markdown("---")
-    
+    # SOSTITUISCI la sezione ventilazione nel BLOCCO 5 con questo:
+
+  
     # =================== SEZIONE 2: PROTEZIONI ===================
     st.markdown("## 🛡️ Sistemi di Protezione")
+    
     
     col_prot1, col_prot2 = st.columns(2)
     
@@ -2905,6 +2994,66 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
     
     st.markdown("---")
 
+# =================== NUOVA SEZIONE VENTILAZIONE E PRESTAZIONI ===================
+    st.markdown("## 🌬️ Ventilazione e Prestazioni")
+    
+    col_vent1, col_vent2 = st.columns(2)
+    
+    with col_vent1:
+        st.markdown("### 💨 Ventilazione Locale")
+        df_vent = pd.DataFrame({
+            "Parametro": [
+                "Perdite Totali", 
+                "Portata Aria Necessaria", 
+                "Griglia Ingresso (totale)",
+                "Griglia Uscita (totale)",
+                "Velocità Aria Ingresso",
+                "Ricambi d'Aria"
+            ],
+            "Valore": [
+                f"{r['ventilazione']['perdite_totali']:.2f} kW",
+                f"{r['ventilazione']['portata_necessaria']:.0f} m³/h",
+                f"{r['ventilazione']['sez_totale_ingresso']:.2f} m²",
+                f"{r['ventilazione']['sez_totale_uscita']:.2f} m²",
+                f"{r['ventilazione']['velocita_ingresso']:.2f} m/s",
+                f"{r['ventilazione']['ricambi_ora']:.1f} vol/h"
+            ]
+        })
+        st.dataframe(df_vent, hide_index=True)
+        
+        # Status ventilazione naturale
+        if r['ventilazione']['ventilazione_naturale_sufficiente']:
+            st.success("✅ Ventilazione naturale sufficiente")
+        else:
+            st.warning("⚠️ Richiesta ventilazione forzata")
+
+    with col_vent2:
+        st.markdown("### 📈 Prestazioni e Parametri")
+        df_prestazioni = pd.DataFrame({
+            "Parametro": [
+                "Rendimento Trasformatore",
+                "Dimensioni Cabina", 
+                "Altezza Effetto Camino",
+                "ΔT Progetto",
+                "Temperatura Interna",
+                "Temperatura Esterna"
+            ],
+            "Valore": [
+                f"{r['rendimento']['rendimento']:.1f}%",
+                r['ventilazione']['dimensioni_cabina'],
+                f"{r['ventilazione']['altezza_camino']:.1f} m",
+                f"{r['ventilazione']['delta_temperatura']:.0f}°C",
+                f"{r['ventilazione']['temp_interna']:.0f}°C",
+                f"{r['ventilazione']['temp_esterna']:.0f}°C"
+            ]
+        })
+        st.dataframe(df_prestazioni, hide_index=True)
+        
+        # Metriche aggiuntive  
+        st.metric("Volume Cabina", f"{r['ventilazione']['volume_cabina']:.1f} m³")
+        st.metric("Portata Max Naturale", f"{r['ventilazione']['portata_naturale_max']:.0f} m³/h")
+
+    st.markdown("---")
 
 # =================== PULSANTE PDF (SENZA RICALCOLI) ===================
     st.markdown("## 📄 Generazione Report")
