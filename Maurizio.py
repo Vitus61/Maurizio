@@ -73,7 +73,7 @@ class CabinaMTBT:
 
         # Tensione di cortocircuito Ucc%
         self.ucc = {
-            p: 4 if p <= 1000 else 6
+            p: 4 if p <= 630 else 6
             for p in self.potenze_normalizzate
         }
 
