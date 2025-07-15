@@ -15,6 +15,35 @@ from reportlab.lib import colors
 from reportlab.lib.units import cm
 from datetime import datetime
 
+# Aggiungi questo CSS DOPO gli import e PRIMA di st.set_page_config()
+
+# CSS personalizzato per pulsante AZZERA rosso
+# APPROCCIO SEMPLICE: Colora TUTTI i pulsanti secondary in rosso
+
+st.markdown("""
+<style>
+/* Tutti i pulsanti secondary diventano rossi */
+button[kind="secondary"] {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: 1px solid #dc3545 !important;
+}
+
+button[kind="secondary"]:hover {
+    background-color: #2ae8c5 !important;
+    border: 1px solid #2ae8c5 !important;
+}
+
+button[kind="secondary"]:focus {
+    background-color: #2ae8c5 !important;
+    border: 1px solid #2ae8c5 !important;
+    box-shadow: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
 # Configurazione pagina
 st.set_page_config(page_title="Calcolatore Cabina MT/BT - Maurizio srl",
                    page_icon="⚡",
@@ -2493,8 +2522,48 @@ descrizioni_carichi = {
 }
 st.sidebar.info(f"**{descrizioni_carichi[tipo_carichi]}**")
 
-# Pulsante calcolo
-calcola_button = st.sidebar.button("🔄 CALCOLA DIMENSIONAMENTO", type="primary")
+
+# Pulsante calcolo (PRINCIPALE) - PRIMO
+calcola_button = st.sidebar.button("🔄 CALCOLA DIMENSIONAMENTO", 
+                                   type="primary", 
+                                   use_container_width=True,
+                                   key="calcola_button_sidebar")
+
+# Spazio tra i pulsanti
+st.sidebar.markdown("")
+
+# Pulsante Reset (SECONDARIO) - SECONDO
+# SOSTITUISCI il pulsante AZZERA nella sidebar con questo:
+
+# Pulsante Reset con conferma
+if st.sidebar.button("🗑️ AZZERA DIMENSIONAMENTO", 
+                     type="secondary", 
+                     use_container_width=True, 
+                     key="reset_button_sidebar"):
+    # Attiva la richiesta di conferma
+    st.session_state.show_confirm_reset = True
+
+# Finestra di conferma (appare solo quando necessaria)
+if st.session_state.get('show_confirm_reset', False):
+    st.sidebar.warning("⚠️ **Sei sicuro?**")
+    st.sidebar.write("Tutti i calcoli verranno cancellati!")
+    
+    col_si, col_no = st.sidebar.columns(2)
+    
+    with col_si:
+        if st.button("✅ SÌ", key="confirm_yes", use_container_width=True):
+            # Esegui il reset
+            st.session_state.calcoli_effettuati = False
+            st.session_state.risultati_completi = {}
+            st.session_state.show_confirm_reset = False  # Nascondi conferma
+            st.sidebar.success("✅ Dimensionamento azzerato!")
+            st.rerun()
+    
+    with col_no:
+        if st.button("❌ NO", key="confirm_no", use_container_width=True):
+            # Annulla - nascondi la conferma
+            st.session_state.show_confirm_reset = False
+            st.rerun()
 
 # Sidebar footer
 st.sidebar.markdown("---")
