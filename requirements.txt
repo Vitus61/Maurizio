@@ -1,3 +1,16 @@
-streamlit>=1.28.0
-pandas>=1.5.0
-reportlab>=4.0.0
+# Core Dependencies
+streamlit==1.29.0
+pandas==2.1.4
+numpy==1.24.3
+
+# PDF Generation (con dipendenze sistema)
+reportlab==4.0.9
+Pillow==10.1.0
+
+# Per compatibilità sistema
+setuptools>=65.0.0
+wheel>=0.38.0
+
+# Alternative per sistemi problematici
+# matplotlib==3.7.2
+# fpdf2==2.7.6
