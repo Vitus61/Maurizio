@@ -2788,6 +2788,49 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
         st.write(f"**Differenziale:** {r['prot_bt']['differenziale']}")
         st.write(f"**Icc Secondario:** {r['prot_bt']['icc_bt']:.1f} kA")
     
+    # Aggiungi questo dopo le "with col_prot2:" e prima di "st.markdown('---')"
+
+    # Sezione normative di riferimento in 5 colonne
+    st.markdown("### 📚 Normative di Riferimento")
+    
+    col_norm1, col_norm2, col_norm3, col_norm4, col_norm5 = st.columns(5)
+    
+    with col_norm1:
+        st.caption("""
+        **INTERRUTTORE:**  
+        IEC 62271-100 / EN 62271-100  
+        IEC 62271-1 / EN 62271-1  
+        CEI 11-1  
+        """)
+    
+    with col_norm2:
+        st.caption("""
+        **TA PROTEZIONE:**  
+        IEC 61869-2 / EN 61869-2  
+        CEI 0-16 (Art. 5.4.3)  
+        """)
+    
+    with col_norm3:
+        st.caption("""
+        **TV MISURE:**  
+        IEC 61869-3 / EN 61869-3  
+        CEI 13-46  
+        """)
+    
+    with col_norm4:
+        st.caption("""
+        **SCARICATORI:**  
+        IEC 60099-4 / EN 60099-4  
+        IEC 60071-1 / EN 60071-1  
+        """)
+    
+    with col_norm5:
+        st.caption("""
+        **TARATURE:**  
+        IEC 60255-121 / EN 60255-121  
+        CEI 0-16 (Edizione 2019-11)  
+        """)
+    
     st.markdown("---")
     
     st.markdown("### 🌍 Campi Elettromagnetici (DPA) - DM 29 maggio 2008")
