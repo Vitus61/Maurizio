@@ -85,9 +85,9 @@ class CabinaMTBT:
 
     def calcola_potenza_trasformatore(self,
                                       potenza_carichi,
-                                      f_contemporaneita=0.75,
+                                      f_contemporaneita=0.7,
                                       cos_phi=0.85,
-                                      margine=1.00):
+                                      margine=1.2):
         """Calcola potenza trasformatore necessaria"""
         potenza_necessaria = (potenza_carichi * f_contemporaneita *
                               margine) / cos_phi
@@ -2439,11 +2439,11 @@ st.sidebar.subheader("🔗 Parametri Cavi Avanzati")
 
 lunghezza_mt = st.sidebar.number_input(
     "Lunghezza Cavo MT (m)",
-    min_value=10, max_value=500, value=30, step=5)
+    min_value=10, max_value=500, value=50, step=5)
 
 lunghezza_bt = st.sidebar.number_input(
     "Lunghezza Cavo BT (m)",
-    min_value=5, max_value=200, value=20, step=5)
+    min_value=5, max_value=200, value=30, step=5)
 
 temp_ambiente = st.sidebar.slider(
     "Temperatura Ambiente (°C)",
