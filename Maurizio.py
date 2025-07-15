@@ -73,7 +73,7 @@ class CabinaMTBT:
 
         # Tensione di cortocircuito Ucc%
         self.ucc = {
-            p: 4 if p <= 630 else 6
+            p: 4 if p <= 1000 else 6
             for p in self.potenze_normalizzate
         }
 
@@ -108,6 +108,51 @@ class CabinaMTBT:
         ucc = self.ucc[potenza_trasf] / 100
         Icc_bt = (potenza_trasf * 1000) / (math.sqrt(3) * self.V_bt * ucc)
         return Icc_bt
+
+    # ✅ INSERIRE QUI IL NUOVO METODO ✅
+    def calcola_dpa(self, I_nominale, sezione_cavi_mmq, tipo_cavo="BT"):
+        """Calcola Distanza di Prima Approssimazione secondo DM 29/05/2008
+        
+        Formula: DPA/√I = 0,40942 × x^0,5241
+        Riferimento: DM 29 maggio 2008 - Art. 5.2.1
+        
+        Args:
+            I_nominale: Corrente nominale in Ampere
+            sezione_cavi_mmq: Sezione cavi in mm²
+            tipo_cavo: "MT" o "BT"
+        """
+        
+        # Diametro equivalente cavo (mm → m)
+        if tipo_cavo == "MT":
+            # Per cavi MT con isolamento maggiore
+            diametro_equiv = math.sqrt(sezione_cavi_mmq / math.pi) * 2.5 / 1000  # m
+        else:
+            # Per cavi BT
+            diametro_equiv = math.sqrt(sezione_cavi_mmq / math.pi) * 1.8 / 1000  # m
+        
+        # Formula DM 29/05/2008
+        dpa_su_radice_i = 0.40942 * (diametro_equiv ** 0.5241)
+        dpa_calcolata = dpa_su_radice_i * math.sqrt(I_nominale)
+        
+        # Arrotondamento al mezzo metro superiore (normativa)
+        dpa_normativa = math.ceil(dpa_calcolata * 2) / 2
+        
+        # Verifiche limiti per ambienti sensibili
+        verifica_3ut = "✅ OK" if dpa_normativa <= 3.0 else "⚠️ ATTENZIONE"
+        verifica_10ut = "✅ OK" if dpa_normativa <= 10.0 else "❌ CRITICO"
+        
+        return {
+            "corrente_A": I_nominale,
+            "sezione_cavi_mmq": sezione_cavi_mmq,
+            "diametro_equiv_m": diametro_equiv,
+            "dpa_calcolata_m": dpa_calcolata,
+            "dpa_normativa_m": dpa_normativa,
+            "verifica_obiettivo_3uT": verifica_3ut,
+            "verifica_limite_10uT": verifica_10ut,
+            "normativa": "DM 29/05/2008",
+            "note": f"DPA = {dpa_normativa:.1f}m per fascia 3μT"
+        }
+
 
     def dimensiona_protezioni_mt(self, I_mt):
         """Dimensiona protezioni MT (SPGI)"""
@@ -2500,6 +2545,12 @@ if calcola_button:
         I_mt, I_bt, lunghezza_mt, lunghezza_bt, temp_ambiente, 
         tipo_posa, n_cavi_mt, n_cavi_bt)
     
+    # ✅ AGGIUNGI SUBITO DOPO:
+    # Calcolo DPA obbligatorio per verifiche campi elettromagnetici
+    dpa_bt = calc.calcola_dpa(I_bt, cavi['sez_bt'], "BT")
+    dpa_mt = calc.calcola_dpa(I_mt, cavi['sez_mt'], "MT")
+    
+    
     status_text.text("🌬️ Calcolo ventilazione e prestazioni...")
     progress_bar.progress(50)
     
@@ -2643,6 +2694,8 @@ if calcola_button:
         'regime_neutro': regime_neutro,
         'verifiche_costruttive': verifiche_costruttive,
         'impianto_terra': impianto_terra,
+        'dpa_bt': dpa_bt,
+        'dpa_mt': dpa_mt,
         
         # Parametri input per PDF
         'parametri_input': {
@@ -2735,6 +2788,23 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
         st.write(f"**Differenziale:** {r['prot_bt']['differenziale']}")
         st.write(f"**Icc Secondario:** {r['prot_bt']['icc_bt']:.1f} kA")
     
+    st.markdown("---")
+    
+    st.markdown("### 🌍 Campi Elettromagnetici (DPA) - DM 29 maggio 2008")
+    col_dpa1, col_dpa2 = st.columns(2)
+    
+    with col_dpa1:
+        st.metric("DPA Cavi BT", f"{dpa_bt['dpa_normativa_m']:.1f} m", 
+                  dpa_bt['verifica_obiettivo_3uT'])
+    
+    with col_dpa2:
+        st.metric("DPA Cavi MT", f"{dpa_mt['dpa_normativa_m']:.1f} m", 
+                  dpa_mt['verifica_obiettivo_3uT'])
+    
+    if any("⚠️" in str(v['verifica_obiettivo_3uT']) or "❌" in str(v['verifica_obiettivo_3uT']) 
+           for v in [dpa_bt, dpa_mt]):
+        st.warning("⚠️ DPA superiore a 3m - verificare presenza aree sensibili")
+        
     st.markdown("---")
     
     # =================== SEZIONE 3: CALCOLI AVANZATI ===================
