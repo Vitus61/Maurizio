@@ -87,7 +87,7 @@ class CabinaMTBT:
                                       potenza_carichi,
                                       f_contemporaneita=0.75,
                                       cos_phi=0.85,
-                                      margine=1.0):
+                                      margine=1.00):
         """Calcola potenza trasformatore necessaria"""
         potenza_necessaria = (potenza_carichi * f_contemporaneita *
                               margine) / cos_phi
