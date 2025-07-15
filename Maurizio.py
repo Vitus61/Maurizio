@@ -2062,7 +2062,7 @@ def genera_pdf_report(potenza_carichi, f_contemporaneita, cos_phi, margine,
     # Dati di input
     story.append(Paragraph("DATI DI INPUT", heading_style))
     data_input = [["Parametro", "Valore"],
-                  ["Potenza carichi totali", f"{potenza_carichi} kW"],
+                  ["Potenza carichi totali", f"{potenza_carichi} kW/kVA"],
                   ["Fattore contemporaneità", f"{f_contemporaneita}"],
                   ["Fattore di potenza medio", f"{cos_phi}"],
                   ["Margine espansioni", f"{margine}"],
@@ -2337,10 +2337,19 @@ if 'risultati_completi' not in st.session_state:
 # ============== SIDEBAR PER INPUT ==============
 st.sidebar.header("📊 Parametri di Input")
 
+# Tipo di potenza
+tipo_potenza = st.sidebar.selectbox(
+    "Tipo di Potenza",
+    options=["Potenza Attiva (kW)", "Potenza Apparente (kVA)"],
+    index=0,
+    help="Specifica se il valore inserito è potenza attiva o apparente"
+)
+
 # Parametri principali
+unita = "kW" if "Attiva" in tipo_potenza else "kVA"
 potenza_carichi = st.sidebar.number_input(
-    "Potenza Carichi Totali (kW)",
-    min_value=10, max_value=5000, value=320, step=10,
+    f"Potenza Carichi Totali ({unita})",
+    min_value=10, max_value=5000, value=732, step=10,
     help="Potenza totale di tutti i carichi da alimentare")
 
 st.sidebar.subheader("⚙️ Fattori di Correzione")
@@ -2460,8 +2469,17 @@ if calcola_button:
     status_text.text("🔄 Calcolo potenza trasformatore...")
     progress_bar.progress(10)
     
-    potenza_trasf, potenza_necessaria = calc.calcola_potenza_trasformatore(
-        potenza_carichi, f_contemporaneita, cos_phi, margine)
+    # Gestisci tipo di potenza
+    if "Apparente" in tipo_potenza:
+        # Potenza apparente - non dividere per cos_phi
+        potenza_trasf, potenza_necessaria = calc.calcola_potenza_trasformatore(
+            potenza_carichi, f_contemporaneita, 1.0, margine)
+        cos_phi_effettivo = 1.0
+    else:
+        # Potenza attiva - calcola normalmente
+        potenza_trasf, potenza_necessaria = calc.calcola_potenza_trasformatore(
+            potenza_carichi, f_contemporaneita, cos_phi, margine)
+        cos_phi_effettivo = cos_phi
     
     status_text.text("⚡ Calcolo correnti...")
     progress_bar.progress(20)
@@ -2629,6 +2647,7 @@ if calcola_button:
         # Parametri input per PDF
         'parametri_input': {
             'potenza_carichi': potenza_carichi,
+            'tipo_potenza': tipo_potenza,        # ← AGGIUNGI QUESTA RIGA
             'f_contemporaneita': f_contemporaneita,
             'cos_phi': cos_phi,
             'margine': margine,
@@ -2661,6 +2680,14 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
     
     # =================== SEZIONE 1: RISULTATI PRINCIPALI ===================
     st.markdown("## 📊 Risultati Principali")
+    # Info tipo potenza usata
+    if 'parametri_input' in r and 'tipo_potenza' in r['parametri_input']:
+        tipo_usato = r['parametri_input']['tipo_potenza']
+        potenza_input = r['parametri_input']['potenza_carichi']
+        if "Apparente" in tipo_usato:
+            st.info(f"💡 Calcolato usando {potenza_input} kVA come potenza apparente")
+        else:
+            st.info(f"💡 Calcolato usando {potenza_input} kW come potenza attiva")
     
     col1, col2, col3, col4 = st.columns(4)
     
