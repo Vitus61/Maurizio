@@ -1639,42 +1639,93 @@ class CabinaMTBT:
             "I2t": I2t,  # kA²s
             "Ip": Ip  # kA picco
         }
-
-    def calcola_illuminazione(self, area_locale=12):
-        """Calcola illuminazione normale e emergenza"""
-        # Parametri illuminazione
-        E_richiesto = 200  # lux (sale quadri)
+    
+    def calcola_illuminazione(self, 
+                            area_locale=12,
+                            tipo_ambiente="Cabina MT/BT",
+                            apparecchio_led="36W Standard"):
+        """
+        Calcola illuminazione normale e emergenza - VERSIONE MIGLIORATA
+        
+        Args:
+            area_locale: Area in m²
+            tipo_ambiente: Tipo di ambiente
+            apparecchio_led: Tipo di apparecchio LED
+        """
+        
+        # ✅ VALIDAZIONE INPUT MINIMALE
+        if area_locale <= 0:
+            raise ValueError("Area locale deve essere positiva")
+        
+        # ✅ PARAMETRI PER TIPO AMBIENTE (invece di hardcoded)
+        parametri_ambienti = {
+            "Cabina MT/BT": {"E_richiesto": 200, "descrizione": "Manutenzione generale"},
+            "Locale Quadri": {"E_richiesto": 500, "descrizione": "Lavori di precisione"},
+            "Corridoio": {"E_richiesto": 100, "descrizione": "Passaggio"},
+            "Deposito": {"E_richiesto": 150, "descrizione": "Magazzino"}
+        }
+        
+        # ✅ PARAMETRI APPARECCHI LED (invece di hardcoded)
+        apparecchi_led = {
+            "36W Standard": {"potenza": 36, "flusso": 4000, "costo": 65},
+            "54W Industriale": {"potenza": 54, "flusso": 6500, "costo": 125},
+            "24W Economy": {"potenza": 24, "flusso": 2800, "costo": 45}
+        }
+        
+        # Ottieni parametri
+        E_richiesto = parametri_ambienti[tipo_ambiente]["E_richiesto"]
+        led_data = apparecchi_led[apparecchio_led]
+        
+        # Parametri illuminazione (come tuo codice originale)
         Cu = 0.6  # coefficiente utilizzo
         Cm = 0.8  # coefficiente manutenzione
         eta_apparecchio = 0.85  # rendimento LED
-
-        # Flusso luminoso necessario
+        
+        # Flusso luminoso necessario (tua formula originale)
         phi_totale = (E_richiesto * area_locale) / (Cu * Cm * eta_apparecchio)
-
-        # Apparecchi LED tipici
-        phi_singolo = 4000  # lumen per apparecchio
+        
+        # Apparecchi LED (usa database invece di hardcoded)
+        phi_singolo = led_data["flusso"]
         n_apparecchi = math.ceil(phi_totale / phi_singolo)
-
+        
         # Potenza illuminazione normale
-        P_singolo = 36  # W per apparecchio LED
+        P_singolo = led_data["potenza"]
         P_totale_normale = n_apparecchi * P_singolo
-
-        # Illuminazione emergenza (autonomia 3h)
+        
+        # Illuminazione emergenza (tua logica originale)
         E_emergenza = 5  # lux vie fuga
-        phi_emergenza = (E_emergenza * area_locale) / (Cu * Cm *
-                                                       eta_apparecchio)
-        n_emergenza = math.ceil(phi_emergenza /
-                                1000)  # apparecchi emergenza 1000 lm
+        phi_emergenza = (E_emergenza * area_locale) / (Cu * Cm * eta_apparecchio)
+        n_emergenza = math.ceil(phi_emergenza / 1000)  # apparecchi emergenza 1000 lm
         P_emergenza = n_emergenza * 8  # W per apparecchio emergenza
-
+        
+        # ✅ CALCOLI AGGIUNTIVI UTILI (poche righe)
+        illuminamento_effettivo = (n_apparecchi * phi_singolo * Cu * Cm * eta_apparecchio) / area_locale
+        potenza_specifica = P_totale_normale / area_locale  # W/m²
+        costo_apparecchi = n_apparecchi * led_data["costo"] + n_emergenza * 120  # €120 per emergenza
+        
+        # ✅ RETURN MIGLIORATO (compatibile con Streamlit)
         return {
+            # Dati originali (compatibilità)
             "area": area_locale,
             "flusso_necessario": phi_totale,
             "n_apparecchi_normali": n_apparecchi,
             "potenza_normale": P_totale_normale,
             "n_apparecchi_emergenza": n_emergenza,
             "potenza_emergenza": P_emergenza,
-            "consumo_totale": P_totale_normale + P_emergenza
+            "consumo_totale": P_totale_normale + P_emergenza,
+            
+            # Dati aggiuntivi utili
+            "tipo_ambiente": tipo_ambiente,
+            "apparecchio_led": apparecchio_led,
+            "illuminamento_richiesto": E_richiesto,
+            "illuminamento_effettivo": illuminamento_effettivo,
+            "potenza_specifica": potenza_specifica,
+            "costo_apparecchi": costo_apparecchi,
+            "verifica_conforme": illuminamento_effettivo >= E_richiesto,
+            
+            # Info per Streamlit
+            "parametri_ambienti": list(parametri_ambienti.keys()),
+            "apparecchi_disponibili": list(apparecchi_led.keys())
         }
 
     def calcola_cadute_tensione(self,
@@ -2656,7 +2707,16 @@ if calcola_button:
     
     # CALCOLI INGEGNERISTICI STANDARD
     isolamento = calc.calcola_caratteristiche_isolamento(potenza_trasf)
-    illuminazione = calc.calcola_illuminazione()
+    
+    
+    illuminazione = calc.calcola_illuminazione(
+        # Φ = (E × A) / (Cu × Cm × η)
+        area_locale=24,
+        tipo_ambiente="Cabina MT/BT",
+        apparecchio_led="36W Standard"
+    )
+    
+    
     cadute_tensione = calc.calcola_cadute_tensione(I_mt, I_bt, 
                                                    sez_mt=cavi['sez_mt'], 
                                                    sez_bt=cavi['sez_bt'])
@@ -3129,6 +3189,7 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
     
     with col_tech1:
         st.markdown("### ⚡ Isolamento MT")
+        st.caption("IEC 60071-1, IEC 60071-2, EN 62271-1, CEI 11-1, CEI 0-16")
         iso = r['isolamento']
         df_iso = pd.DataFrame({
             "Parametro": ["Tensione massima (Um)", "Tenuta 50Hz secco", "Tenuta impulso (BIL)", "Sollecitazione termica"],
@@ -3147,6 +3208,7 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
     
     with col_tech2:
         st.markdown("### 💡 Illuminazione")
+        st.caption("UNI EN 12464-1 , UNI 11248, CEI 34-21")
         ill = r['illuminazione']
         df_ill = pd.DataFrame({
             "Parametro": ["Apparecchi normali", "Potenza normale", "Apparecchi emergenza", "Consumo totale"],
