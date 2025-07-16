@@ -2962,19 +2962,18 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
     
     st.markdown("---")
     
+    # ✅ CODICE CORRETTO - USA SESSION STATE
     st.markdown("### 🌍 Campi Elettromagnetici (DPA) - DM 29 maggio 2008")
     col_dpa1, col_dpa2 = st.columns(2)
-    
+
     with col_dpa1:
-        st.metric("DPA Cavi BT", f"{dpa_bt['dpa_normativa_m']:.1f} m", 
-                  dpa_bt['verifica_obiettivo_3uT'])
-    
+        st.metric("DPA Cavi BT", f"{r['dpa_bt']['dpa_normativa_m']:.1f} m", r['dpa_bt']['verifica_obiettivo_3uT'])
+
     with col_dpa2:
-        st.metric("DPA Cavi MT", f"{dpa_mt['dpa_normativa_m']:.1f} m", 
-                  dpa_mt['verifica_obiettivo_3uT'])
-    
+        st.metric("DPA Cavi MT", f"{r['dpa_mt']['dpa_normativa_m']:.1f} m", r['dpa_mt']['verifica_obiettivo_3uT'])
+
     if any("⚠️" in str(v['verifica_obiettivo_3uT']) or "❌" in str(v['verifica_obiettivo_3uT']) 
-           for v in [dpa_bt, dpa_mt]):
+            for v in [r['dpa_bt'], r['dpa_mt']]):
         st.warning("⚠️ DPA superiore a 3m - verificare presenza aree sensibili")
         
     st.markdown("---")
@@ -3189,7 +3188,7 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
     
     with col_tech1:
         st.markdown("### ⚡ Isolamento MT")
-        st.caption("IEC 60071-1, IEC 60071-2, EN 62271-1, CEI 11-1, CEI 0-16")
+        st.markdown("")
         iso = r['isolamento']
         df_iso = pd.DataFrame({
             "Parametro": ["Tensione massima (Um)", "Tenuta 50Hz secco", "Tenuta impulso (BIL)", "Sollecitazione termica"],
@@ -3465,6 +3464,6 @@ else:
     
     # Footer
     st.markdown("---")
-    st.markdown("**Sviluppato da:** Lo Zio di Maurizio srl - Impianti Elettrici")
+    st.markdown("**Sviluppato da:** Maurizio srl - Impianti Elettrici")
     st.markdown("**Versione:** 2.1 - Calcoli Avanzati Completi")
     st.markdown("**Data:** " + datetime.now().strftime('%d/%m/%Y'))
