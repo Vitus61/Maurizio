@@ -381,6 +381,7 @@ class CabinaMTBT:
                 "R": 0.036,
                 "X": 0.035,
                 "portata_base": 1500
+                "tipo": "XLPE 90°C compatto"
             }
         }
 
