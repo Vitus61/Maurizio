@@ -3465,6 +3465,6 @@ else:
     
     # Footer
     st.markdown("---")
-    st.markdown("**Sviluppato da:** Maurizio srl - Impianti Elettrici")
+    st.markdown("**Sviluppato da:** Lo Zio di Maurizio srl - Impianti Elettrici")
     st.markdown("**Versione:** 2.1 - Calcoli Avanzati Completi")
     st.markdown("**Data:** " + datetime.now().strftime('%d/%m/%Y'))
