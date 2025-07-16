@@ -1064,7 +1064,7 @@ class CabinaMTBT:
         
         # ✅ CURVE COMPLETAMENTE RIDEISEGNATE PER SELETTIVITÀ
         
-        def tempo_rele_51_mt(corrente):
+        def tempo_rele_51_mt(corrente, tipo_curva="very_inverse", TMS=0.8, tolleranza=0.05):
             """
             Relè 51 MT - Curva VERY INVERSE (più ripida e appropriata)
             Formula: t = TMS × [13.5 / ((I/Is) - 1)]
@@ -1075,14 +1075,48 @@ class CabinaMTBT:
                 return float('inf')
             
             rapporto = corrente / I_rele_51_mt
-            if rapporto <= 1:
+            if rapporto <= 1.0:
                 return float('inf')
             
-            # ✅ VERY INVERSE invece di Normal Inverse - MOLTO più ripida!
-            TMS = 0.8  # TMS moderato per Very Inverse
-            tempo = TMS * (13.5 / (rapporto - 1))  # ← CALCOLA QUI
+            # ✅ CURVE IEC STANDARD PRECISE
+            if tipo_curva == "normal_inverse":
+                # IEC Normal Inverse: t = TMS × [0.14 / ((I/Is)^0.02 - 1)]
+                if rapporto <= 1.0:
+                    return float('inf')
+                tempo_base = TMS * (0.14 / (rapporto**0.02 - 1))
+        
+            elif tipo_curva == "very_inverse":
+                # IEC Very Inverse: t = TMS × [13.5 / ((I/Is) - 1)]
+                tempo_base = TMS * (13.5 / (rapporto - 1))
+        
+            elif tipo_curva == "extremely_inverse":
+                 # IEC Extremely Inverse: t = TMS × [80 / ((I/Is)^2 - 1)]
+                tempo_base = TMS * (80 / (rapporto**2 - 1))
+        
+            else:
+                raise ValueError(f"Curva {tipo_curva} non supportata")
+    
+            # ✅ LIMITI TECNICI REALISTICI
+            tempo_base = max(tempo_base, 0.1)    # Min 100ms (limite fisico relè)
+            tempo_base = min(tempo_base, 100.0)  # Max 100s (timeout sicurezza)
             
-            return tempo
+            # ✅ TOLLERANZA RELÈ REALE (±5% tipico)
+            import random
+            fattore_tolleranza = 1.0 + random.uniform(-tolleranza, tolleranza)
+            tempo_finale = tempo_base * fattore_tolleranza
+            
+            # ✅ CONTROLLO COERENZA per valori estremi
+            if rapporto > 50:  # Cortocircuiti molto alti
+                tempo_finale = max(tempo_finale, 0.15)  # Min 150ms per sicurezza
+    
+            return round(tempo_finale, 3)  # Precisione millisecondi
+
+        # ✅ VERSIONE SEMPLIFICATA per uso normale
+        def tempo_rele_51_mt_semplice(corrente):
+            """Versione semplificata per calcoli rapidi"""
+            return tempo_rele_51_mt(corrente, "very_inverse", 0.8, 0.0)
+            
+            
     
         def tempo_rele_50_mt(corrente):
             """
