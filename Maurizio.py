@@ -40,7 +40,7 @@ button[kind="secondary"]:focus {
 """, unsafe_allow_html=True)
 
 # Configurazione pagina
-st.set_page_config(page_title="Calcolatore Cabina MT/BT - Maurizio srl v2.2",
+st.set_page_config(page_title="Calcolatore Cabina MT/BT - Maurizio v3.0",
                    page_icon="⚡",
                    layout="wide",
                    initial_sidebar_state="expanded")
