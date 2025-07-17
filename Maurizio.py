@@ -2942,7 +2942,7 @@ if st.session_state.calcoli_effettuati and st.session_state.risultati_completi:
 else:
     st.info("Inserisci i parametri nella barra laterale e clicca 'CALCOLA DIMENSIONAMENTO'")
     
-    st.markdown("## Informazioni sul Calcolatore v2.2")
+    st.markdown("## Informazioni sul Calcolatore v3.0")
     
     st.markdown("""
     Calcolatore non professionale per cabine MT/BT 20kV/400V secondo normative CEI vigenti.
@@ -3066,5 +3066,5 @@ else:
     
     st.markdown("---")
     st.markdown("**Sviluppato da:** Maurizio srl - Impianti Elettrici")
-    st.markdown("**Versione:** 2.2 - Trasformatori Ucc 8% secondo CEI")
+    st.markdown("**Versione:** 3.0 - Trasformatori Ucc 8% secondo CEI")
     st.markdown("**Data:** " + datetime.now().strftime('%d/%m/%Y'))
