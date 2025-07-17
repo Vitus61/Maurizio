@@ -2064,7 +2064,7 @@ def init_calculator():
     return CabinaMTBT()
 
 # Header principale
-st.title("Calcolatore Cabina MT/BT - Maurizio srl v2.2")
+st.title("Calcolatore Cabina MT/BT - Maurizio v3.0")
 st.markdown("**Dimensionamento automatico cabine 20kV/400V secondo normative CEI**")
 
 # Informazioni tecniche essenziali
